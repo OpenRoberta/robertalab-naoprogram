@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.net.URL;
 import java.util.Locale;
@@ -24,7 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.SpringLayout;
+import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
 import de.fhg.iais.roberta.ui.UIController.CloseListener;
@@ -156,7 +157,7 @@ public class ConnectionView extends JFrame {
 
         this.pnlRobotConnection.setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 12));
         this.pnlRobotConnection.setBackground(Color.white);
-        this.pnlRobotConnection.setLayout(new SpringLayout());
+        this.pnlRobotConnection.setLayout(new GridLayout(0, 2, 6, 3));
 
         this.pnlMainGif.setBackground(Color.white);
         this.pnlMainGif.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -201,14 +202,17 @@ public class ConnectionView extends JFrame {
 
         this.robotIp.setFont(new Font("Arial", Font.PLAIN, 14));
         this.robotIp.setEditable(true);
-        this.robotIp.setColumns(10);
+        this.robotIp.setColumns(20);
+        this.robotIp.setHorizontalAlignment(SwingConstants.CENTER);
+
         this.usernameDesc.setFont(new Font("Arial", Font.PLAIN, 14));
         this.usernameDesc.setBackground(Color.white);
         this.usernameDesc.setBorder(null);
 
         this.username.setFont(new Font("Arial", Font.PLAIN, 14));
         this.username.setEditable(true);
-        this.username.setColumns(10);
+        this.username.setColumns(15);
+        this.username.setHorizontalAlignment(SwingConstants.CENTER);
 
         this.passwordDesc.setFont(new Font("Arial", Font.PLAIN, 14));
         this.passwordDesc.setBackground(Color.white);
@@ -216,7 +220,8 @@ public class ConnectionView extends JFrame {
 
         this.password.setFont(new Font("Arial", Font.PLAIN, 14));
         this.password.setEditable(true);
-        this.password.setColumns(10);
+        this.password.setColumns(15);
+        this.password.setHorizontalAlignment(SwingConstants.CENTER);
 
         this.add(this.menu, BorderLayout.NORTH);
         this.add(this.centerPanel, BorderLayout.CENTER);
@@ -247,7 +252,7 @@ public class ConnectionView extends JFrame {
         this.customportDesc.setText(this.messages.getString("port"));
         this.pnlCustomAddress.add(this.customport);
         this.pnlRobotConnection.add(this.robotIpDesc);
-        this.robotIpDesc.setText(this.messages.getString("ip"));
+        this.robotIpDesc.setText(this.messages.getString("robotIp"));
         this.pnlRobotConnection.add(this.robotIp);
         this.pnlRobotConnection.add(this.usernameDesc);
         this.usernameDesc.setText(this.messages.getString("user"));
