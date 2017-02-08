@@ -58,7 +58,7 @@ public class ConnectionView extends JFrame {
     private final JLabel customportDesc = new JLabel();
     private final JTextField customport = new JTextField();
     private final JLabel robotIpDesc = new JLabel();
-    private final JTextField robotIp = new JTextField();
+    private final JTextField robotIp = new JTextField("0.0.0.0");
     private final JLabel usernameDesc = new JLabel();
     private final JTextField username = new JTextField("nao");
     private final JLabel passwordDesc = new JLabel();
