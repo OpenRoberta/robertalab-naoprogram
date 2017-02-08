@@ -1,10 +1,13 @@
 package de.fhg.iais.roberta.connection;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.logging.Logger;
 
 import org.apache.commons.net.ftp.FTPClient;
@@ -17,8 +20,6 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.UIKeyboardInteractive;
 import com.jcraft.jsch.UserInfo;
-
-import lejos.pc.comm.NXTCommException;
 
 public class NAOCommunicator {
 
@@ -67,16 +68,33 @@ public class NAOCommunicator {
         return NAOState.WAITING_FOR_PROGRAM;
     }
 
-    public void uploadFile(byte[] binaryfile, String nxtFileName) throws IOException, NXTCommException {
+    public void uploadFile(byte[] binaryfile, String nxtFileName) throws IOException {
         File file = new File(nxtFileName);
         FileOutputStream fs = new FileOutputStream(file);
         fs.write(binaryfile);
         fs.flush();
         fs.close();
         log.info("File downloaded and saved.");
+        updateHal();
+        ftpTransfer("hal.py");
         ftpTransfer(nxtFileName);
         sshCommand("python " + nxtFileName);
         sshCommand("rm " + nxtFileName);
+    }
+
+    private void updateHal() throws IOException {
+        BufferedReader file = new BufferedReader(new FileReader("hal.py"));
+        PrintWriter writer = new PrintWriter(new File("hal.py"), "UTF-8");
+        String line;
+        while ( (line = file.readLine()) != null ) {
+            line = line.replace("self.NAO_IP = \"169.254.6.238\"", "self.NAO_IP = \"" + this.ip + "\"");
+            writer.println(line);
+        }
+        file.close();
+        if ( writer.checkError() ) {
+            throw new IOException("cannot write to file");
+        }
+        writer.close();
     }
 
     private void sshCommand(String command) {
