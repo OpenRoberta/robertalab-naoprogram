@@ -3,6 +3,7 @@ package de.fhg.iais.roberta.connection;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -27,6 +28,9 @@ public class NAOCommunicator {
     private final String ip;
     private final String username;
     private final String password;
+    //ports on the robot
+    int sshPort = 22;
+    int ftpPort = 21;
 
     private final JSch jsch = new JSch();
     private final FTPClient ftpClient = new FTPClient();
@@ -68,46 +72,64 @@ public class NAOCommunicator {
         return NAOState.WAITING_FOR_PROGRAM;
     }
 
-    public void uploadFile(byte[] binaryfile, String nxtFileName) throws IOException {
+    public void uploadFile(byte[] binaryfile, String nxtFileName){
         File file = new File(nxtFileName);
-        FileOutputStream fs = new FileOutputStream(file);
-        fs.write(binaryfile);
-        fs.flush();
-        fs.close();
+        FileOutputStream fs;
+        try {
+        	fs = new FileOutputStream(file);
+    		fs.write(binaryfile);
+    		fs.flush();
+    		fs.close();
+        } catch(Exception e){
+        	log.warning("Can not write received byte stream to file");
+        }
         log.info("File downloaded and saved.");
+        
+        log.info("Robot IP: " + this.ip + "  Username: "+ this.username + "  Password: " + this.password);
         updateHal();
         ftpTransfer("hal.py");
         ftpTransfer(nxtFileName);
         sshCommand("python " + nxtFileName);
         sshCommand("rm " + nxtFileName);
     }
+    
+    private void updateHal() {
+        try {
+            // input the file content to the String "input"
+            BufferedReader file = new BufferedReader(new FileReader("originalHal.py"));
+            String line;
+            String input = "";
 
-    private void updateHal() throws IOException {
-        BufferedReader file = new BufferedReader(new FileReader("hal.py"));
-        PrintWriter writer = new PrintWriter(new File("hal.py"), "UTF-8");
-        String line;
-        while ( (line = file.readLine()) != null ) {
-            line = line.replace("self.NAO_IP = \"169.254.6.238\"", "self.NAO_IP = \"" + this.ip + "\"");
-            writer.println(line);
+            while ((line = file.readLine()) != null){
+            	input += line + '\n';
+            }
+
+            file.close();
+
+            //replace the line
+            System.out.println(this.ip);
+            input = input.replace("self.NAO_IP = \"\"", "self.NAO_IP = \"" + this.ip + "\"");
+
+            // write the new String with the replaced line in a new file
+            FileOutputStream fileOut = new FileOutputStream("hal.py");
+            fileOut.write(input.getBytes());
+            fileOut.close();
+
+        } catch (Exception e) {
+            System.out.println("Problem reading or writing HAL file.");
         }
-        file.close();
-        if ( writer.checkError() ) {
-            throw new IOException("cannot write to file");
-        }
-        writer.close();
     }
 
     private void sshCommand(String command) {
 
-        //sshport on the robot
-        int port = 22;
+        
 
         //implement the abstract class MyUserInfo
         UserInfo ui = new MyUserInfo() {
         };
 
         try {
-            Session session = this.jsch.getSession(this.username, this.ip, port);
+            Session session = this.jsch.getSession(this.username, this.ip, this.sshPort);
             session.setPassword(this.password);
             session.setUserInfo(ui);
             session.setTimeout(50000);
@@ -176,11 +198,11 @@ public class NAOCommunicator {
     }
 
     private void ftpTransfer(String file) {
-        int port = 21;
+    	
         log.info("transferring file to NAO...");
         try {
             //connect to ftp server(NAO)
-            this.ftpClient.connect(this.ip, port);
+            this.ftpClient.connect(this.ip, this.ftpPort);
 
             showServerReply();
             int replyCode = this.ftpClient.getReplyCode();
