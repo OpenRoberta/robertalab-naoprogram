@@ -380,7 +380,7 @@ class Hal(object):
 	
     def setLeds(self, name, color, intensity):
 	self.led.fadeRGB(name, color, 0.1)
-        self.led.setIntensity(name, intensity/100.0)
+        #self.led.setIntensity(name, intensity/100.0)
 
     def ledOff(self):
         self.led.off("FaceLeds")
@@ -458,28 +458,37 @@ class Hal(object):
         self.sonar.unsubscribe("TestApplication")
 
     def fsr(self, side):
-        if side == "left":
+        if side == "Left":
             return self.memory.getData("leftFootTotalWeight")
         else:
             return self.memory.getData("rightFootTotalWeight")   
 
     def touchsensors(self, position, side):
-        if position == "hand":
-            if side == "left":
-                return self.memory.getData("HandLeftBackTouched")
-            elif side == "right":
-                return self.memory.getData("HandRightBackTouched")
-        elif position == "bumper":
-            if side == "left":
-                return self.memory.getData("LeftBumperPressed")
-            elif side == "right":
-                return self.memory.getData("RightBumperPressed")	
-        if position == "front":
-            return self.memory.getData("FrontTactilTouched")
-        elif position == "middle":
-            return self.memory.getData("MiddleTactilTouched")
-        elif position == "rear":
-            return self.memory.getData("RearTactilTouched")
+        if position == "Hand":
+            if side == "Left":
+                if self.memory.getData("HandLeftBackTouched") == 1:
+                return true
+            elif side == "Right":
+                if self.memory.getData("HandRightBackTouched") == 1:
+                return true
+        elif position == "Bumper":
+            if side == "Left":
+                if self.memory.getData("LeftBumperPressed") == 1;
+                return true
+            elif side == "Right":
+                if self.memory.getData("RightBumperPressed") == 1:
+                return true	
+        elif position == "Head":
+            if side == "Front":
+                if self.memory.getData("FrontTactilTouched") == 1:
+                return true
+            elif side == "Middle":
+                if self.memory.getData("MiddleTactilTouched") == 1:
+                return true
+            elif side == "Rear":
+            if self.memory.getData("RearTactilTouched") == 1:
+            return true
+     
 
     def naoMark(self):
         self.mark.subscribe("RobertaLab", 500, 0.0)
