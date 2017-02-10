@@ -96,6 +96,8 @@ public interface Connector {
      * @param customServerAddress
      */
     public void updateCustomServerAddress(String customServerAddress);
+    
+    public void updateRobotInformation(String ip, String username, String password);
 
     /**
      * If gui fields are empty but advanced options is checked, use the default server address.
@@ -107,4 +109,6 @@ public interface Connector {
     public void setRobotUserName(String userName);
 
     public void setRobotPassword(String password);
+
+	public void resetToDefaultRobotInformation();
 }

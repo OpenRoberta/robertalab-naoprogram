@@ -25,9 +25,9 @@ import com.jcraft.jsch.UserInfo;
 public class NAOCommunicator {
 
     private static Logger log = Logger.getLogger("NAOCommunicator");
-    private final String ip;
-    private final String username;
-    private final String password;
+    private String ip;
+    private String username;
+    private String password;
     //ports on the robot
     int sshPort = 22;
     int ftpPort = 21;
@@ -273,4 +273,10 @@ public class NAOCommunicator {
             return null;
         }
     }
+
+	public void updateRobotInformation(String ip, String username, String password) {
+		this.ip = ip;
+		this.username = username;
+		this.password = password;		
+	}
 }

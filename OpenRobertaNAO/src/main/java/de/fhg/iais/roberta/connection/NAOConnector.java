@@ -276,6 +276,18 @@ public class NAOConnector extends Observable implements Runnable, Connector {
         this.servcomm.updateCustomServerAddress(this.serverAddress);
         log.info("Now using default address " + this.serverAddress);
     }
+    
+    @Override
+    public void updateRobotInformation(String ip, String username, String password) {
+        this.naocomm.updateRobotInformation(ip, username, password);
+        log.info("Now using robot information IP: " + ip + "  Username: " + username + "  Password: " + password);
+    }
+
+    @Override
+    public void resetToDefaultRobotInformation() {
+        this.naocomm.updateRobotInformation("0.0.0.0", "nao", "nao");
+        log.info("Now using default robot information IP: 0.0.0.0   Username: nao   Password: nao");
+    }
 
     private static class DiscoverNAO {
 

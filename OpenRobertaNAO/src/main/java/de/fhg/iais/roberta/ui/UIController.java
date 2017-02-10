@@ -47,9 +47,6 @@ public class UIController<ObservableObject> implements Observer {
         @Override
         public void actionPerformed(ActionEvent e) {
             AbstractButton b = (AbstractButton) e.getSource();
-            UIController.this.connector.setRobotIp(UIController.this.conView.getRobotIp());
-            UIController.this.connector.setRobotUserName(UIController.this.conView.getRobotUserName());
-            UIController.this.connector.setRobotPassword(UIController.this.conView.getRobotPassword());
             if ( b.getActionCommand().equals("close") ) {
                 log.info("User close");
                 closeApplication();
@@ -62,8 +59,12 @@ public class UIController<ObservableObject> implements Observer {
             } else {
                 if ( b.isSelected() ) {
                     log.info("User connect");
+                    //UIController.this.connector.setRobotIp(UIController.this.conView.getRobotIp());
+                    //UIController.this.connector.setRobotUserName(UIController.this.conView.getRobotUserName());
+                    //UIController.this.connector.setRobotPassword(UIController.this.conView.getRobotPassword());
                     if ( UIController.this.connector != null ) {
                         checkForValidCustomServerAddressAndUpdate();
+                        checkForValidRobotAndUpdate();
                         UIController.this.connector.userPressConnectButton();
                     }
                     b.setText(UIController.this.rb.getString("disconnect"));
@@ -105,6 +106,19 @@ public class UIController<ObservableObject> implements Observer {
         } else {
             this.connector.resetToDefaultServerAddress();
         }
+    }
+    
+    public void checkForValidRobotAndUpdate() {
+    	String robotIp = this.conView.getRobotIp();
+    	String username = this.conView.getRobotUserName();
+    	String password = this.conView.getRobotPassword();
+            if ( robotIp != null && username != null && password != null && !robotIp.equals("") && !username.equals("") && !password.equals("")) {
+                log.info("Valid robot information IP: " + robotIp + "  Username: " + username + "  Password: " + password);
+                this.connector.updateRobotInformation(robotIp, username, password);
+            } else {
+                log.info("Invalid robot information (null or empty) - Using default address");
+                this.connector.resetToDefaultServerAddress();
+            }
     }
 
     public boolean isConnected() {
