@@ -59,9 +59,6 @@ public class UIController<ObservableObject> implements Observer {
             } else {
                 if ( b.isSelected() ) {
                     log.info("User connect");
-                    //UIController.this.connector.setRobotIp(UIController.this.conView.getRobotIp());
-                    //UIController.this.connector.setRobotUserName(UIController.this.conView.getRobotUserName());
-                    //UIController.this.connector.setRobotPassword(UIController.this.conView.getRobotPassword());
                     if ( UIController.this.connector != null ) {
                         checkForValidCustomServerAddressAndUpdate();
                         checkForValidRobotAndUpdate();
@@ -117,7 +114,7 @@ public class UIController<ObservableObject> implements Observer {
                 this.connector.updateRobotInformation(robotIp, username, password);
             } else {
                 log.info("Invalid robot information (null or empty) - Using default address");
-                this.connector.resetToDefaultServerAddress();
+                this.connector.resetToDefaultRobotInformation();
             }
     }
 

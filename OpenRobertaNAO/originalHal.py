@@ -466,20 +466,20 @@ class Hal(object):
     def touchsensors(self, position, side):
         if position == "hand":
             if side == "left":
-                return self.memoryProxy.getData("HandLeftBackTouched")
+                return self.memory.getData("HandLeftBackTouched")
             elif side == "right":
-                return self.memoryProxy.getData("HandRightBackTouched")
+                return self.memory.getData("HandRightBackTouched")
         elif position == "bumper":
             if side == "left":
-                return self.memoryProxy.getData("LeftBumperPressed")
+                return self.memory.getData("LeftBumperPressed")
             elif side == "right":
-                return self.memoryProxy.getData("RightBumperPressed")	
+                return self.memory.getData("RightBumperPressed")	
         if position == "front":
-            return self.memoryProxy.getData("FrontTactilTouched")
+            return self.memory.getData("FrontTactilTouched")
         elif position == "middle":
-            return self.memoryProxy.getData("MiddleTactilTouched")
+            return self.memory.getData("MiddleTactilTouched")
         elif position == "rear":
-            return self.memoryProxy.getData("RearTactilTouched")
+            return self.memory.getData("RearTactilTouched")
 
     def naoMark(self):
         self.mark.subscribe("RobertaLab", 500, 0.0)
