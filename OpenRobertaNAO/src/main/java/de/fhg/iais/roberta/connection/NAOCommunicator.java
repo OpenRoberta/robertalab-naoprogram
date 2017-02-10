@@ -1,12 +1,11 @@
 package de.fhg.iais.roberta.connection;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.util.logging.Logger;
 
 import org.apache.commons.net.ftp.FTPClient;
@@ -70,36 +69,24 @@ public class NAOCommunicator {
         return NAOState.WAITING_FOR_PROGRAM;
     }
 
-    public void uploadFile(byte[] binaryfile, String nxtFileName){
-        File file = new File(nxtFileName);
-        FileOutputStream fs;
-        try {
-        	fs = new FileOutputStream(file);
-    		fs.write(binaryfile);
-    		fs.flush();
-    		fs.close();
-        } catch(Exception e){
-        	log.warning("Can not write received byte stream to file");
-        }
-        log.info("File downloaded and saved.");
-        
-        log.info("Robot IP: " + this.ip + "  Username: "+ this.username + "  Password: " + this.password);
-        updateHal();
-        ftpTransfer("hal.py");
-        ftpTransfer(nxtFileName);
-        sshCommand("python " + nxtFileName);
-        sshCommand("rm " + nxtFileName);
+    public void uploadFile(byte[] binaryfile, String fileName) throws Exception {
+        log.info("Robot IP: " + this.ip + "  Username: " + this.username + "  Password: " + this.password);
+        byte[] binayrHal = getModifiedHal();
+        ftpTransfer("hal.py", binayrHal);
+        ftpTransfer(fileName, binaryfile);
+        sshCommand("python " + fileName);
+        sshCommand("rm " + fileName);
     }
-    
-    private void updateHal() {
+
+    private byte[] getModifiedHal() {
         try {
             // input the file content to the String "input"
-            BufferedReader file = new BufferedReader(new FileReader("originalHal.py"));
+            BufferedReader file = new BufferedReader(new FileReader("./resources/originalHal.py"));
             String line;
             String input = "";
 
-            while ((line = file.readLine()) != null){
-            	input += line + '\n';
+            while ( (line = file.readLine()) != null ) {
+                input += line + '\n';
             }
 
             file.close();
@@ -108,19 +95,15 @@ public class NAOCommunicator {
             System.out.println(this.ip);
             input = input.replace("self.NAO_IP = \"\"", "self.NAO_IP = \"" + this.ip + "\"");
 
-            // write the new String with the replaced line in a new file
-            FileOutputStream fileOut = new FileOutputStream("hal.py");
-            fileOut.write(input.getBytes());
-            fileOut.close();
+            return input.getBytes();
 
-        } catch (Exception e) {
+        } catch ( Exception e ) {
             System.out.println("Problem reading or writing HAL file.");
         }
+        return null;
     }
 
     private void sshCommand(String command) {
-
-        
 
         //implement the abstract class MyUserInfo
         UserInfo ui = new MyUserInfo() {
@@ -195,9 +178,8 @@ public class NAOCommunicator {
         }
     }
 
-    private void ftpTransfer(String file) {
-    	
-        log.info("transferring file to NAO...");
+    private void ftpTransfer(String fileName, byte[] binaryFile) throws Exception {
+        log.info(String.format("transferring file: %s to NAO...", fileName));
         try {
             //connect to ftp server(NAO)
             this.ftpClient.connect(this.ip, this.ftpPort);
@@ -222,13 +204,16 @@ public class NAOCommunicator {
                 this.ftpClient.enterLocalPassiveMode();
 
                 //store file on the robot
-                InputStream input = new FileInputStream(file);
-                this.ftpClient.storeFile(file, input);
+                InputStream input = new ByteArrayInputStream(binaryFile);
+                this.ftpClient.storeFile(fileName, input);
                 input.close();
             }
             //logout
             this.ftpClient.logout();
             log.info("file transferred");
+        } catch ( ConnectException e ) {
+            log.warning("There is no connection!");
+            throw new Exception("No connection with the robot!");
         } catch ( IOException e ) {
             log.warning("There was an error during transfer:");
             e.printStackTrace();
@@ -272,9 +257,9 @@ public class NAOCommunicator {
         }
     }
 
-	public void updateRobotInformation(String ip, String username, String password) {
-		this.ip = ip;
-		this.username = username;
-		this.password = password;		
-	}
+    public void updateRobotInformation(String ip, String username, String password) {
+        this.ip = ip;
+        this.username = username;
+        this.password = password;
+    }
 }

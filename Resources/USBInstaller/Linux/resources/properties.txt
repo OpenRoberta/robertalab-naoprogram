@@ -1,0 +1,4 @@
+# set the path defaults
+WinPath="./resources/windows/arduino/avrdude.exe"
+LinPath="./resources/linux/arduino/"
+OsXPath="./resources/osx/arduino/"

@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:bal="http://schemas.microsoft.com/wix/BalExtension">
+	<?define RTMProductVersion="1.0.0" ?>
+	<?define ProductVersion="1.0.0" ?>
+	<?define UpgradeCode="799563e9-08f9-4b92-9747-335577c25a45"?>
+	<?define ProductCode="379a1a40-7e3e-4a86-980e-fb06aa4ed9be"?>
+	<?define Manufacturer="Fraunhofer IAIS"?>
+	<?define PackageCode="83fdaba8-f90b-4ba9-a930-96cd73a312a0"?>
+
+
+	<Product
+    UpgradeCode  = '$(var.UpgradeCode)'
+    Id           = '$(var.ProductCode)'
+    Name         = "Open Roberta NAO"
+    Language     = '1033'
+    Version      = '$(var.ProductVersion)'
+    Manufacturer = '$(var.Manufacturer)'
+  >
+		<Package
+      Id               = '*'
+      Manufacturer     = '$(var.Manufacturer)'
+      InstallerVersion = '200'
+      Compressed       = 'yes'
+      SummaryCodepage  = '1252'
+      Comments         = "Connect the NAO via Ethernet cable or wireless!"
+    />
+
+		<!-- <Upgrade Id="$(var.UpgradeCode)">
+			<UpgradeVersion Minimum="$(var.ProductVersion)"
+                      IncludeMinimum="no"
+                      OnlyDetect="yes"
+                      Language="1033"
+Property="NEWPRODUCTFOUND" />
+
+			<UpgradeVersion Minimum="$(var.RTMProductVersion)"
+                      IncludeMinimum="yes"
+                      Maximum="$(var.ProductVersion)"
+                      IncludeMaximum="no"
+                      Language="1033"
+Property="UPGRADEFOUND" />
+		</Upgrade> -->
+
+		<Media Id='1' Cabinet='Setup.cab' EmbedCab='yes' />
+		<Property Id="InstallationFolder">OpenRobertaNAO</Property>
+		<Icon Id="OpenRobertaNAO" SourceFile="OpenRobertaNAO.exe" />
+		<Property Id="ARPPRODUCTICON" Value="OpenRobertaNAO" />
+		<WixVariable Id="WixUILicenseRtf" Value="Resources_installer\Apache2.rtf" />
+        <WixVariable Id="WixUIBannerBmp" Value="Resources_installer\ORBanner.bmp" />
+        <WixVariable Id="WixUIDialogBmp" Value="Resources_installer\ORDialog.bmp" />
+		<WixVariable Id="WixUIInfoIco" Value="Resources_installer\warning-outline.ico" />
+		<WixVariable Id="WixUIExclamationIco" Value="Resources_installer\warning-outline.ico" />
+			<Directory Id="TARGETDIR" Name="SourceDir">	
+			<Directory Id="ProgramFilesFolder">			
+				<Directory Id="INSTALLDIR" Name="OpenRobertaNAO">
+                    <Directory Id="RESOURCES" Name="resources"/>
+					<Component Id="ApplicationFiles" Guid="3d140aef-be7d-46f9-90c3-66fec0d27f4a">
+						<File Id="USBCONNECTION_EXE" Source="OpenRobertaNAO.exe" KeyPath="yes"/>						
+					</Component> 
+				</Directory>
+			</Directory>
+			<Directory Id="ProgramMenuFolder">
+				<Directory Id="ApplicationProgramsFolder" Name="OpenRobertaNAO"/>
+			</Directory>
+			<Directory Id="DesktopFolder" Name="Desktop" />
+		</Directory>
+
+		<DirectoryRef Id="ApplicationProgramsFolder">
+			<Component Id="ApplicationShortcut" Guid="8f36c49b-9fb0-4e99-a3c2-94aa3249ef2e">
+				<Shortcut Id="ApplicationStartMenuShortcut" Name="Open Roberta NAO" Description="Open Roberta NAO" Target="[INSTALLDIR]OpenRobertaNAO.exe" WorkingDirectory="INSTALLDIR" />
+				<RemoveFolder Id="RemoveApplicationProgramsFolder" Directory="ApplicationProgramsFolder" On="uninstall" />
+				<RegistryValue Root="HKCU" Key="Software\OpenRobertaNAO" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+			</Component>
+		</DirectoryRef>
+		<DirectoryRef Id="DesktopFolder">
+			<Component Id="ApplicationShortcutDesktop" Guid="2a3ade68-6ffb-4f72-b3ce-f5406657bae0">
+				<Shortcut Id="ApplicationDesktopShortcut" Name="Open Roberta NAO" Description="Open Roberta NAO" Target="[INSTALLDIR]OpenRobertaNAO.exe" WorkingDirectory="INSTALLDIR" />
+				<RemoveFolder Id="RemoveDesktopFolder" Directory="DesktopFolder" On="uninstall" />
+				<RegistryValue Root="HKCU" Key="Software\OpenRobertaNAO" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+			</Component>
+		</DirectoryRef>
+
+		<Feature Id="Complete" Level="1" Title="Open Roberta NAO" Description="The complete package."
+				Display="expand" ConfigurableDirectory="INSTALLDIR">
+			
+			<Feature Id='Resources' Title='Description' Description='Libraries for the jar' Level='1'>
+				<ComponentGroupRef Id='ResGroupID' />
+			</Feature>
+
+			<ComponentRef Id="ApplicationFiles"/>
+			<ComponentRef Id="ApplicationShortcut" />
+			<ComponentRef Id="ApplicationShortcutDesktop" />	
+		</Feature>
+		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+
+		<CustomAction Id="PreventDowngrading" Error="Newer version already installed." />
+		
+		<UIRef Id="WixUI_InstallDir" />
+		<UIRef Id="WixUI_ErrorProgressText" />
+		<InstallUISequence>
+
+			<Custom Action="PreventDowngrading" After="FindRelatedProducts">NEWPRODUCTFOUND</Custom>
+
+		</InstallUISequence>
+
+		<InstallExecuteSequence>	
+		  	<Custom Action="PreventDowngrading" After="FindRelatedProducts">NEWPRODUCTFOUND</Custom>
+		</InstallExecuteSequence>
+		<Binary Id="SystemRestore" SourceFile="Scripts\SystemRestore.js" />
+	</Product>
+</Wix>

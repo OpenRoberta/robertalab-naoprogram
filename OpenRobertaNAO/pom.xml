@@ -2,8 +2,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.fhg.iais.openroberta</groupId>
-	<artifactId>OpenRobertaUSB</artifactId>
-	<version>2.0.2-SNAPSHOT</version>
+	<artifactId>OpenRobertaNAO</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
 	<properties>
 		<!-- the server and the crosscompiler SHOULD be compatible between(including) 
 			the following two versions of software deployed on the ROBOT -->
@@ -140,7 +140,7 @@
 							<artifactItems>
 								<artifactItem>
 									<groupId>de.fhg.iais.openroberta</groupId>
-									<artifactId>OpenRobertaUSB</artifactId>
+									<artifactId>OpenRobertaNAO</artifactId>
 									<version>${project.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
@@ -204,8 +204,8 @@
 						<configuration>
 							<dontWrapJar>false</dontWrapJar>
 							<headerType>gui</headerType>
-							<jar>${basedir}/target/OpenRobertaUSB-${project.version}.jar</jar>
-							<outfile>${basedir}/USBinstaller/Windows/OpenRobertaUSB.exe</outfile>
+							<jar>${basedir}/target/OpenRobertaNAO-${project.version}.jar</jar>
+							<outfile>${basedir}/USBinstaller/Windows/OpenRobertaNAO.exe</outfile>
 							<errTitle></errTitle>
 							<cmdLine></cmdLine>
 							<chdir>.</chdir>

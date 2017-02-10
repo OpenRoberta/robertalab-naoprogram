@@ -22,7 +22,7 @@ import de.fhg.iais.roberta.util.ORAFormatter;
 
 public class Main {
 
-    private static final String LOGFILENAME = "OpenRobertaUSB.log";
+    private static final String LOGFILENAME = "OpenRobertaNAO.log";
     private static Logger log = Logger.getLogger("Connector");
     private static ConsoleHandler consoleHandler = new ConsoleHandler();
     private static FileHandler fileHandler = null;
@@ -73,7 +73,7 @@ public class Main {
             }
 
             private ResourceBundle getServerProps() {
-                return ResourceBundle.getBundle("OpenRobertaUSB");
+                return ResourceBundle.getBundle("OpenRobertaNAO");
             }
 
             private ResourceBundle getLocals() {
@@ -131,7 +131,7 @@ public class Main {
             } else if ( SystemUtils.IS_OS_MAC || SystemUtils.IS_OS_MAC_OSX ) {
                 path = System.getProperty("user.home");
             }
-            logFile = new File(path, "OpenRobertaUSB");
+            logFile = new File(path, "OpenRobertaNAO");
             if ( !logFile.exists() ) {
                 logFile.mkdir();
             }
