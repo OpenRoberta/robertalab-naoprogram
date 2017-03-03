@@ -496,6 +496,9 @@ class Hal(object):
     def naoMark(self):
         self.mark.subscribe("RobertaLab", 500, 0.0)
         return self.memory.getData("LandmarkDetected")
+    
+    def getElectricCurrent(self, jointName):
+        return self.memory.getData("Device/SubDeviceList/" + jointName + "/ElectricCurrent/Sensor/Value")
 
     def learnFace(self, name):
         self.fd.learnFace(name)
