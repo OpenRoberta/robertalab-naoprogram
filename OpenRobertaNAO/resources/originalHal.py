@@ -494,6 +494,7 @@ class Hal(object):
             elif side == "Rear":
                 if self.memory.getData("RearTactilTouched") == 1:
                     return True
+        return False
      
     def naoMark(self):
         self.mark.subscribe("RobertaLab", 500, 0.0)
