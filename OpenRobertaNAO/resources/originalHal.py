@@ -41,9 +41,11 @@ class Hal(object):
 	
     def mode(self, modus):
 	if modus == 1:
-            self.posture.goToPosture("Stand",1.0)
-	elif modus == 2:
-            self.posture.goToPosture("Sit",1.0)
+            self.posture.goToPosture("Stand",0.8)
+        elif modus == 2:
+            self.motion.rest()
+	elif modus == 3:
+            self.posture.goToPosture("Sit",0.8)
 		
     def applyPosture(self, pose):
        self.posture.goToPosture(pose,1.0)
