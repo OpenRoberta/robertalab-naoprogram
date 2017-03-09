@@ -48,7 +48,8 @@ class Hal(object):
             self.posture.goToPosture("Sit",0.8)
 		
     def applyPosture(self, pose):
-       self.posture.goToPosture(pose,1.0)
+        #posture.goToPosture is used instead of applyPosture as this is a "intelligent" move calculating the path on its own
+       self.posture.goToPosture(pose,0.8)
 		
     def stiffness(self, bodypart, status):
 	if status == 1:
