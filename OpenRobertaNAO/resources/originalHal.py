@@ -441,17 +441,17 @@ class Hal(object):
     #SENSORS
 	
     def accelerometer(self, coordinate):
-        if coordinate == "X":
+        if coordinate == "x":
             return self.memory.getData("Device/SubDeviceList/InertialSensor/AccelerometerX/Sensor/Value")
-        elif coordinate == "Y":
+        elif coordinate == "y":
             return self.memory.getData("Device/SubDeviceList/InertialSensor/AccelerometerY/Sensor/Value")
-        elif coordinate == "Z":
+        elif coordinate == "z":
             return self.memory.getData("Device/SubDeviceList/InertialSensor/AccelerometerZ/Sensor/Value")
 			
     def gyrometer(self, coordinate):
-        if coordinate == "X":
+        if coordinate == "x":
             return self.memory.getData("Device/SubDeviceList/InertialSensor/GyroscopeX/Sensor/Value")
-        elif coordinate == "Y":
+        elif coordinate == "y":
             return self.memory.getData("Device/SubDeviceList/InertialSensor/GyroscopeY/Sensor/Value")
          
     def sonar(self):
@@ -465,34 +465,34 @@ class Hal(object):
         self.sonar.unsubscribe("TestApplication")
 
     def fsr(self, side):
-        if side == "Left":
+        if side == "left":
             return self.memory.getData("leftFootTotalWeight")
         else:
             return self.memory.getData("rightFootTotalWeight")   
 
     def touchsensors(self, position, side):
-        if position == "Hand":
-            if side == "Left":
+        if position == "hand":
+            if side == "left":
                 if self.memory.getData("HandLeftBackTouched") == 1:
                     return True
-            elif side == "Right":
+            elif side == "right":
                 if self.memory.getData("HandRightBackTouched") == 1:
                     return True
-        elif position == "Bumper":
-            if side == "Left":
+        elif position == "bumper":
+            if side == "left":
                 if self.memory.getData("LeftBumperPressed") == 1:
                     return True
-            elif side == "Right":
+            elif side == "right":
                 if self.memory.getData("RightBumperPressed") == 1:
                     return True	
-        elif position == "Head":
-            if side == "Front":
+        elif position == "head":
+            if side == "front":
                 if self.memory.getData("FrontTactilTouched") == 1:
                     return True
-            elif side == "Middle":
+            elif side == "middle":
                 if self.memory.getData("MiddleTactilTouched") == 1:
                     return True
-            elif side == "Rear":
+            elif side == "rear":
                 if self.memory.getData("RearTactilTouched") == 1:
                     return True
         return False
