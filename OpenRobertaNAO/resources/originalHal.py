@@ -389,11 +389,11 @@ class Hal(object):
 	self.led.fadeRGB(name, color, 0.1)
         #self.led.setIntensity(name, intensity/100.0)
 
-    def ledOff(self):
-        self.led.off("FaceLeds")
+    def ledOff(self, name):
+        self.led.off(name)
 
-    def ledReset(self):
-        self.led.reset("FaceLeds")
+    def ledReset(self, name):
+        self.led.reset(name)
 
     def randomEyes(self, duration):
         self.led.randomEyes(duration/1000)
