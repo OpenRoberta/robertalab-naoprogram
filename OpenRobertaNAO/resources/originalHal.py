@@ -513,5 +513,6 @@ class Hal(object):
     def detectFace(self):
         self.fd.setRecoginitionEnabled(True)
         
-    def wait(self, miliseconds):
-            time.sleep(miliseconds);
+    def wait(self, timeMilliSeconds):
+        timeSeconds = timeMilliSeconds/1000
+        time.sleep(timeSeconds)
