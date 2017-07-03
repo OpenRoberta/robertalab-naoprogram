@@ -349,7 +349,7 @@ class Hal(object):
         self.tts.setLanguage(language)
 
     def say(self, text):
-        self.tts.say(text)
+        self.tts.say(str(text))
 		
     def playFile(self, filename):
 	self.aup.playFile("/usr/share/naoqi/wav/" + filename + ".wav")
