@@ -456,15 +456,12 @@ class Hal(object):
         elif coordinate == "y":
             return self.memory.getData("Device/SubDeviceList/InertialSensor/GyroscopeY/Sensor/Value")
          
-    def sonar(self):
+    def ultrasonic(self):
         #Subscribe to Sonars, launch them(at Hardware level) and start data acquisition
         self.sonar.subscribe("TestApplication")
 
         #Retrieve sonar data from ALMemory (distance in meters)
         return self.memory.getData("Device/SubDeviceList/US/Right/Sensor/Value")
-
-        #Unsubscribe from sonars and stop them (at Hardware level)
-        #self.sonar.unsubscribe("TestApplication")
 
     def fsr(self, side):
         if side == "left":

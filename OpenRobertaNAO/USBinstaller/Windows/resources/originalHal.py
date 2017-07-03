@@ -386,8 +386,10 @@ class Hal(object):
     #LIGHTS
 	
     def setLeds(self, name, color, intensity):
-	self.led.fadeRGB(name, color, 0.1)
-        #self.led.setIntensity(name, intensity/100.0)
+	   self.led.fadeRGB(name, color, 0.1)
+        
+    def setIntensity(self, name, intensity):
+        self.led.setIntensity(name, intensity/100.0);
 
     def ledOff(self, name):
         self.led.off(name)
@@ -454,15 +456,12 @@ class Hal(object):
         elif coordinate == "y":
             return self.memory.getData("Device/SubDeviceList/InertialSensor/GyroscopeY/Sensor/Value")
          
-    def sonar(self):
+    def ultrasonic(self):
         #Subscribe to Sonars, launch them(at Hardware level) and start data acquisition
         self.sonar.subscribe("TestApplication")
 
         #Retrieve sonar data from ALMemory (distance in meters)
         return self.memory.getData("Device/SubDeviceList/US/Right/Sensor/Value")
-
-        #Unsubscribe from sonars and stop them (at Hardware level)
-        self.sonar.unsubscribe("TestApplication")
 
     def fsr(self, side):
         if side == "left":
@@ -513,5 +512,6 @@ class Hal(object):
     def detectFace(self):
         self.fd.setRecoginitionEnabled(True)
         
-    def wait(self, miliseconds):
-            time.sleep(miliseconds);
+    def wait(self, timeMilliSeconds):
+        timeSeconds = timeMilliSeconds/1000
+        time.sleep(timeSeconds)
