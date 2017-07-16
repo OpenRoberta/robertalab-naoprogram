@@ -4,13 +4,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
+
+import org.json.Property;
 
 import de.fhg.iais.roberta.connection.Connector;
 import de.fhg.iais.roberta.usb.Main;
@@ -104,18 +110,18 @@ public class UIController<ObservableObject> implements Observer {
             this.connector.resetToDefaultServerAddress();
         }
     }
-    
+
     public void checkForValidRobotAndUpdate() {
-    	String robotIp = this.conView.getRobotIp();
-    	String username = this.conView.getRobotUserName();
-    	String password = this.conView.getRobotPassword();
-            if ( robotIp != null && username != null && password != null && !robotIp.equals("") && !username.equals("") && !password.equals("")) {
-                log.info("Valid robot information IP: " + robotIp + "  Username: " + username + "  Password: " + password);
-                this.connector.updateRobotInformation(robotIp, username, password);
-            } else {
-                log.info("Invalid robot information (null or empty) - Using default address");
-                this.connector.resetToDefaultRobotInformation();
-            }
+        String robotIp = this.conView.getRobotIp();
+        String username = this.conView.getRobotUserName();
+        String password = this.conView.getRobotPassword();
+        if ( robotIp != null && username != null && password != null && !robotIp.equals("") && !username.equals("") && !password.equals("") ) {
+            log.info("Valid robot information IP: " + robotIp + "  Username: " + username + "  Password: " + password);
+            this.connector.updateRobotInformation(robotIp, username, password);
+        } else {
+            log.info("Invalid robot information (null or empty) - Using default address");
+            this.connector.resetToDefaultRobotInformation();
+        }
     }
 
     public boolean isConnected() {
@@ -208,10 +214,41 @@ public class UIController<ObservableObject> implements Observer {
         ORAPopup.showPopup(
             this.conView,
             this.rb.getString("about"),
-            this.rb.getString("aboutInfo"),
+            this.rb.getString("aboutInfo") + getVersion(),
             new ImageIcon(
                 new ImageIcon(getClass().getClassLoader().getResource("iais_logo.gif"))
                     .getImage()
                     .getScaledInstance(100, 27, java.awt.Image.SCALE_AREA_AVERAGING)));
+    }
+
+    public String getVersion() {
+        String version = null;
+        try {
+            Properties p = new Properties();
+            InputStream is = getClass().getResourceAsStream("/META-INF/maven/de.fhg.iais.openroberta/OpenRobertaNAO/pom.properties");
+            if ( is != null ) {
+                p.load(is);
+                version = p.getProperty("version", "");
+            }
+        } catch ( Exception e ) {
+            // ignore
+        }
+
+        if ( version == null ) {
+            Package aPackage = getClass().getPackage();
+            if ( aPackage != null ) {
+                version = aPackage.getImplementationVersion();
+                if ( version == null ) {
+                    version = aPackage.getSpecificationVersion();
+                }
+            }
+        }
+
+        if ( version == null ) {
+            // we could not compute the version so use a blank
+            version = "";
+        }
+
+        return version;
     }
 }

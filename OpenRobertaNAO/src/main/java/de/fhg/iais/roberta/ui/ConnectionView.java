@@ -9,6 +9,7 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.net.URL;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
@@ -30,6 +31,7 @@ import javax.swing.WindowConstants;
 
 import de.fhg.iais.roberta.ui.UIController.CloseListener;
 import de.fhg.iais.roberta.ui.UIController.ConnectActionListener;
+import de.fhg.iais.roberta.util.Utils;
 
 public class ConnectionView extends JFrame {
 
@@ -408,5 +410,4 @@ public class ConnectionView extends JFrame {
             this.gifConnected = new ImageIcon(imgURL);
         }
     }
-
 }
