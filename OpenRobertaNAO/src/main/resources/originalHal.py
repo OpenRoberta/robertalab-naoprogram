@@ -458,7 +458,7 @@ class Hal(object):
                 self.asr.setAudioExpression(False)
                 self.asr.setVisualExpression(False)
                 self.asr.unsubscribe("Open_Roberta")
-                break
+                return recognizedWord
 
     # LIGHTS
 
