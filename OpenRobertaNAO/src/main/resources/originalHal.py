@@ -40,6 +40,7 @@ class Hal(object):
         self.asr = ALProxy("ALSpeechRecognition")
         self.aup = ALProxy("ALAudioPlayer")
         self.fd = ALProxy("ALFaceDetection")
+        self.awareness = ALProxy("ALBasicAwareness")
 
     # MOVEMENT
 
@@ -530,10 +531,6 @@ class Hal(object):
             return self.memory.getData("Device/SubDeviceList/InertialSensor/GyroscopeY/Sensor/Value")
 
     def ultrasonic(self):
-        # Subscribe to Sonars, launch them(at Hardware level) and start data
-        # acquisition
-        self.sonar.subscribe("TestApplication")
-
         # Retrieve sonar data from ALMemory (distance in meters)
         return self.memory.getData("Device/SubDeviceList/US/Right/Sensor/Value")
 
