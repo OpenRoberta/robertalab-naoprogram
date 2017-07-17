@@ -2,10 +2,12 @@ package de.fhg.iais.roberta.connection;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
+import java.util.Scanner;
 import java.util.logging.Logger;
 
 import org.apache.commons.net.ftp.FTPClient;
@@ -71,11 +73,33 @@ public class NAOCommunicator {
 
     public void uploadFile(byte[] binaryfile, String fileName) throws Exception {
         log.info("Robot IP: " + this.ip + "  Username: " + this.username + "  Password: " + this.password);
-        byte[] binayrHal = getModifiedHal();
-        ftpTransfer("hal.py", binayrHal);
+        byte[] binaryHal = getModifiedHalFromResources();
+        ftpTransfer("hal.py", binaryHal);
         ftpTransfer(fileName, binaryfile);
         sshCommand("python " + fileName);
         sshCommand("rm " + fileName);
+    }
+
+    private byte[] getModifiedHalFromResources() {
+        try {
+            ClassLoader classLoader = getClass().getClassLoader();
+            File file = new File(classLoader.getResource("originalHal.py").getFile());
+            String input = "";
+            Scanner scanner = new Scanner(file);
+            while ( scanner.hasNextLine() ) {
+                input += scanner.nextLine() + '\n';
+            }
+            scanner.close();
+            //replace the line
+            System.out.println(this.ip);
+            input = input.replace("self.NAO_IP = \"\"", "self.NAO_IP = \"" + this.ip + "\"");
+            return input.getBytes();
+
+        } catch ( Exception e ) {
+            System.out.println("Problem reading or writing HAL file.");
+        }
+        return null;
+
     }
 
     private byte[] getModifiedHal() {
