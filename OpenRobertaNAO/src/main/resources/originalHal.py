@@ -444,15 +444,17 @@ class Hal(object):
                 self.asr.unsubscribe("Open_Roberta")
                 break
 
-    def recognizeWord(self, phrase):
-        vocabulary = [phrase]
+    def recognizeWord(self, vocabulary):
         self.asr.setAudioExpression(True)
         self.asr.setVisualExpression(True)
+        self.asr.pause(1)
         self.asr.setVocabulary(vocabulary, False)
+        self.asr.pause(0)
         self.asr.subscribe("Open_Roberta")
         while(True):
             recognizedWord = self.memory.getData("LastWordRecognized")
-            if recognizedWord[1] == phrase:
+            if recognizedWord[0] in vocabulary:
+                time.sleep(1)
                 self.asr.setAudioExpression(False)
                 self.asr.setVisualExpression(False)
                 self.asr.unsubscribe("Open_Roberta")
