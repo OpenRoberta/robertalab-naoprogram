@@ -1,6 +1,7 @@
 .DS_Store
 *.jar
 *.exe
+*.msi
 */target
 *.wixpdb
 *.wixobj
