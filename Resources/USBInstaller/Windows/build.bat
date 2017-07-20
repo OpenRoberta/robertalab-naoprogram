@@ -1,4 +1,4 @@
 "%WIX%bin\candle.exe" setup.wxs
-"%WIX%bin\light.exe" -out OpenRobertaNAOSetupDE_%VERSION%.msi -ext WixUIExtension -cultures:de-DE setup.wixobj
-"%WIX%bin\light.exe" -out OpenRobertaNAOSetupEN_%VERSION%.msi -ext WixUIExtension -cultures:en-US setup.wixobj
+"%WIX%bin\light.exe" -out OpenRobertaNAOSetupDE_1.0.0-SNAPSHOT.msi -ext WixUIExtension -cultures:de-DE setup.wixobj
+"%WIX%bin\light.exe" -out OpenRobertaNAOSetupEN_1.0.0-SNAPSHOT.msi -ext WixUIExtension -cultures:en-US setup.wixobj
 @pause

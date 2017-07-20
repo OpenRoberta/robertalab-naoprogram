@@ -76,6 +76,7 @@
 				<includes>
 					<include>**/install.sh</include>
 					<include>**/setup.wxs</include>
+					<include>**/build.bat</include>
 				</includes>
 			</resource>
 		</resources>
@@ -255,6 +256,9 @@
 									overwrite="true" />
 								<copy file="${project.build.outputDirectory}/setup.wxs"
 									toFile="${basedir}/Resources/USBInstaller/Windows/setup.wxs"
+									overwrite="true" />
+								<copy file="${project.build.outputDirectory}/build.bat"
+									toFile="${basedir}/Resources/USBInstaller/Windows/build.bat"
 									overwrite="true" />
 							</tasks>
 						</configuration>
