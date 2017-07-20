@@ -123,7 +123,7 @@
 									<overWrite>true</overWrite>
 								</artifactItem>
 							</artifactItems>
-							<outputDirectory>${basedir}/Resources/USBinstaller/Linux</outputDirectory>
+							<outputDirectory>${basedir}/Resources/USBInstaller/Linux</outputDirectory>
 							<overWriteReleases>true</overWriteReleases>
 							<overWriteSnapshots>true</overWriteSnapshots>
 							<!-- <stripVersion>true</stripVersion> -->
@@ -180,7 +180,7 @@
 						<configuration>
 							<filesets>
 								<fileset>
-									<directory>${basedir}/Resources/USBinstaller/Windows</directory>
+									<directory>${basedir}/Resources/USBInstaller/Windows</directory>
 									<includes>
 										<include>*.msi</include>
 										<include>*.wixpdb</include>
@@ -207,7 +207,7 @@
 							<dontWrapJar>false</dontWrapJar>
 							<headerType>gui</headerType>
 							<jar>${basedir}/OpenRobertaNAO/target/OpenRobertaNAO-${project.version}.jar</jar>
-							<outfile>${basedir}/Resources/USBinstaller/Windows/OpenRobertaNAO-${project.version}.exe</outfile>
+							<outfile>${basedir}/Resources/USBInstaller/Windows/OpenRobertaNAO-${project.version}.exe</outfile>
 							<errTitle></errTitle>
 							<cmdLine></cmdLine>
 							<chdir>.</chdir>
@@ -224,8 +224,6 @@
 							</singleInstance>
 							<classPath>
 								<mainClass>de.fhg.iais.roberta.usb.Main</mainClass>
-								<jarLocation>lib/*</jarLocation>
-								<jarLocation>resources/*</jarLocation>
 							</classPath>
 							<jre>
 								<path>java/</path>
@@ -252,7 +250,7 @@
                 <configuration>
                    <tasks>
                      <copy file="${project.build.outputDirectory}/install.sh"
-                       toFile="${basedir}/Resources/USBinstaller/Linux/install.sh" overwrite="true" />
+                       toFile="${basedir}/Resources/USBInstaller/Linux/install.sh" overwrite="true" />
                   </tasks>
                 </configuration>
                 <goals>

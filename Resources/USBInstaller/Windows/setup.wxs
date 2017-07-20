@@ -49,13 +49,12 @@ Property="UPGRADEFOUND" />
         <WixVariable Id="WixUIDialogBmp" Value="Resources_installer\ORDialog.bmp" />
 		<WixVariable Id="WixUIInfoIco" Value="Resources_installer\warning-outline.ico" />
 		<WixVariable Id="WixUIExclamationIco" Value="Resources_installer\warning-outline.ico" />
-			<Directory Id="TARGETDIR" Name="SourceDir">	
-			<Directory Id="ProgramFilesFolder">			
+			<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
 				<Directory Id="INSTALLDIR" Name="OpenRobertaNAO">
-                    <Directory Id="RESOURCES" Name="resources"/>
 					<Component Id="ApplicationFiles" Guid="3d140aef-be7d-46f9-90c3-66fec0d27f4a">
-						<File Id="USBCONNECTION_EXE" Source="OpenRobertaNAO-$(env.VERSION)-SNAPSHOT.exe" KeyPath="yes"/>						
-					</Component> 
+						<File Id="USBCONNECTION_EXE" Source="OpenRobertaNAO-$(env.VERSION)-SNAPSHOT.exe" KeyPath="yes"/>
+					</Component>
 				</Directory>
 			</Directory>
 			<Directory Id="ProgramMenuFolder">
@@ -81,19 +80,15 @@ Property="UPGRADEFOUND" />
 
 		<Feature Id="Complete" Level="1" Title="Open Roberta NAO" Description="The complete package."
 				Display="expand" ConfigurableDirectory="INSTALLDIR">
-			
-			<Feature Id='Resources' Title='Description' Description='Libraries for the jar' Level='1'>
-				<ComponentGroupRef Id='ResGroupID' />
-			</Feature>
 
 			<ComponentRef Id="ApplicationFiles"/>
 			<ComponentRef Id="ApplicationShortcut" />
-			<ComponentRef Id="ApplicationShortcutDesktop" />	
+			<ComponentRef Id="ApplicationShortcutDesktop" />
 		</Feature>
 		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
 
 		<CustomAction Id="PreventDowngrading" Error="Newer version already installed." />
-		
+
 		<UIRef Id="WixUI_InstallDir" />
 		<UIRef Id="WixUI_ErrorProgressText" />
 		<InstallUISequence>
@@ -102,7 +97,7 @@ Property="UPGRADEFOUND" />
 
 		</InstallUISequence>
 
-		<InstallExecuteSequence>	
+		<InstallExecuteSequence>
 		  	<Custom Action="PreventDowngrading" After="FindRelatedProducts">NEWPRODUCTFOUND</Custom>
 		</InstallExecuteSequence>
 		<Binary Id="SystemRestore" SourceFile="Scripts\SystemRestore.js" />
