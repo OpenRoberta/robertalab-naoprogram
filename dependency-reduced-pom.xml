@@ -17,6 +17,7 @@
         <directory>${basedir}/OpenRobertaNAO/src/main/resources</directory>
         <includes>
           <include>**/install.sh</include>
+          <include>**/setup.wxs</include>
         </includes>
       </resource>
     </resources>
@@ -188,8 +189,6 @@
               </singleInstance>
               <classPath>
                 <mainClass>de.fhg.iais.roberta.usb.Main</mainClass>
-                <jarLocation>lib/*</jarLocation>
-                <jarLocation>resources/*</jarLocation>
               </classPath>
               <jre>
                 <path>java/</path>
@@ -219,6 +218,7 @@
             <configuration>
               <tasks>
                 <copy />
+                <copy />
               </tasks>
             </configuration>
           </execution>
@@ -242,7 +242,7 @@
   </dependencies>
   <properties>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <source.level>1.6</source.level>
+    <source.level>1.8</source.level>
     <wix.locales>1033:en-US,1031:de-DE;en-US</wix.locales>
     <maven.compiler.source>1.6</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
