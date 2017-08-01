@@ -432,7 +432,10 @@ class Hal(object):
         self.tts.setLanguage(language)
 
     def say(self, text):
-        self.tts.say(str(text))
+        #encode string with UTF-8 because the say method can't handle the unicode representation
+        newString = str(text)
+        newString = u"{}".format(newString)
+        self.tts.say(newString.decode("unicode-escape").encode("utf-8)"))
 
     def playFile(self, filename):
         self.aup.playFile("/usr/share/naoqi/wav/" + filename + ".wav")
