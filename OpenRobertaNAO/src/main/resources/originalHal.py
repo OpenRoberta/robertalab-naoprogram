@@ -62,6 +62,14 @@ class Hal(object):
             self.motion.setStiffnesses(bodypart, 1.0)
         elif status == 2:
             self.motion.setStiffnesses(bodypart, 0)
+            
+    def autonomous(self, mode):
+        if mode == 1:
+            self.awareness.startAwareness()
+            self.motion.setBreathEnabled("Body", False)
+        elif mode == 2:
+            self.awareness.stopAwareness()
+            self.motion.setBreathEnabled("Body", True)
 
     def hand(self, handName, mode):
         if mode == 1:
