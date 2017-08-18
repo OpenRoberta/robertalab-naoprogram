@@ -55,6 +55,7 @@ class SpeechRecognitionModule(ALModule):
         while(!self.isWordRecognized):
             time.sleep(0.1)
         self.isWordRecognized = False
+        self.pauseASR()
         return self.lastWordRecognized
 
 class Hal(object):
