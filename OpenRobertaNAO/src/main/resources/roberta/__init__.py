@@ -1,0 +1,3 @@
+from original_hal import Hal
+from speech_recognition_module import SpeechRecognitionModule
+from blockly_methods import BlocklyMethods
