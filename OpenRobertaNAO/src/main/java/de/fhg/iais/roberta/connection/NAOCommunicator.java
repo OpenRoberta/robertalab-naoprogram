@@ -1,4 +1,6 @@
-package de.fhg.iais.roberta.components;
+package de.fhg.iais.roberta.connection;
+
+
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -8,12 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.json.JSONObject;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
@@ -22,11 +24,11 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.UIKeyboardInteractive;
 import com.jcraft.jsch.UserInfo;
 
-import de.fhg.iais.roberta.util.Key;
+
 
 public class NAOCommunicator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NAOCommunicator.class);
+	private static Logger LOG = Logger.getLogger("NAOCommunicator");
     private String ip;
     private String username;
     private String password;
@@ -49,9 +51,9 @@ public class NAOCommunicator {
         return this.ip;
     }
 
-    public Key uploadFile(byte[] binaryfile, String fileName) throws Exception {
+    public void uploadFile(byte[] binaryfile, String fileName) throws Exception {
         // LOG.info("Robot IP: " + this.ip + "  Username: " + this.username + "  Password: " + this.password);
-        Key key;
+
         List<String> fileNames = new ArrayList<String>();
         fileNames.add("roberta/__init__.py");
         fileNames.add("roberta/blockly_methods.py");
@@ -61,16 +63,16 @@ public class NAOCommunicator {
         try {
             for ( String fname : fileNames ) {
                 fileContents = getFileFromResources(fname);
-                key = ftpTransfer(fname, fileContents);
+              ftpTransfer(fname, fileContents);
             }
-            key = ftpTransfer(fileName, binaryfile);
-            key = sshCommand("python " + fileName);
-            key = sshCommand("rm " + fileName);
-            key = sshCommand("rm -r roberta");
+           ftpTransfer(fileName, binaryfile);
+            sshCommand("python " + fileName);
+             sshCommand("rm " + fileName);
+            sshCommand("rm -r roberta");
         } catch ( Exception e ) {
-            key = Key.NAO_PROGRAM_UPLOAD_ERROR_CONNECTION_NOT_ESTABLISHED;
+//            key = Key.NAO_PROGRAM_UPLOAD_ERROR_CONNECTION_NOT_ESTABLISHED;
         }
-        return key;
+//        return key;
     }
 
     private byte[] getFileFromResources(String fileName) {
@@ -95,7 +97,7 @@ public class NAOCommunicator {
 
     }
 
-    private Key sshCommand(String command) {
+    private void sshCommand(String command) {
 
         //implement the abstract class MyUserInfo
         UserInfo ui = new MyUserInfo();
@@ -153,10 +155,10 @@ public class NAOCommunicator {
             //disconnect from channel and session
             channel.disconnect();
             session.disconnect();
-            return Key.NAO_PROGRAM_UPLOAD_SUCCESSFUL;
+          
         } catch ( Exception e ) {
             System.out.println(e);
-            return Key.NAO_PROGRAM_UPLOAD_ERROR_SSH_CONNECTION;
+   
         }
     }
 
@@ -171,7 +173,7 @@ public class NAOCommunicator {
         }
     }
 
-    private Key ftpTransfer(String fileName, byte[] binaryFile) throws Exception {
+    private void ftpTransfer(String fileName, byte[] binaryFile) throws Exception {
         LOG.info(String.format("transferring file: %s to NAO...", fileName));
         try {
             //connect to ftp server(NAO)
@@ -194,14 +196,14 @@ public class NAOCommunicator {
 
             //print error message if connection is not established
             if ( !FTPReply.isPositiveCompletion(replyCode) ) {
-                LOG.error("Operation failed. Server reply code: " + replyCode);
-                return Key.NAO_PROGRAM_UPLOAD_ERROR_CONNECTION_NOT_ESTABLISHED;
+                LOG.info("Operation failed. Server reply code: " + replyCode);
+    
             }
             showServerReply();
 
             if ( !success ) {
-                LOG.error("Could not login to the FTP server!");
-                return Key.NAO_PROGRAM_UPLOAD_ERROR_FTP_LOGIN_FAILD;
+                LOG.info("Could not login to the FTP server!");
+             
             } else {
 
                 //Use local passive mode to avoid problems with firewalls
@@ -217,14 +219,14 @@ public class NAOCommunicator {
             //logout
             this.ftpClient.logout();
             LOG.info("file transferred");
-            return Key.NAO_PROGRAM_UPLOAD_SUCCESSFUL;
+         
         } catch ( ConnectException e ) {
-            LOG.error("There is no connection!");
-            return Key.NAO_PROGRAM_UPLOAD_ERROR_CONNECTION_NOT_ESTABLISHED;
+            LOG.info("There is no connection!");
+
         } catch ( IOException e ) {
-            LOG.error("There was an error during transfer:");
+            LOG.info("There was an error during transfer:");
             e.printStackTrace();
-            return Key.NAO_PROGRAM_UPLOAD_ERROR_IO;
+ 
         }
     }
 
@@ -269,5 +271,24 @@ public class NAOCommunicator {
         this.ip = ip;
         this.username = username;
         this.password = password;
+    }
+    
+    /**
+     * @return true if a program is currently running, false otherwise
+     * @throws IOException
+     */
+    public NAOState getNAOstate() {
+        return NAOState.WAITING_FOR_PROGRAM;
+    }
+    
+    public JSONObject getDeviceInfo() {
+        JSONObject deviceInfo = new JSONObject();
+        deviceInfo.put("firmwarename", "Nao");
+        deviceInfo.put("robot", "nao");
+        deviceInfo.put("firmwareversion", "2.1");
+        deviceInfo.put("macaddr", "1");
+        deviceInfo.put("brickname", "nao");
+        deviceInfo.put("battery", "1.0");
+        return deviceInfo;
     }
 }

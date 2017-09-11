@@ -33,6 +33,7 @@ class Hal(object):
         self.mark = ALProxy("ALLandMarkDetection")
         self.photo = ALProxy("ALPhotoCapture")
         self.sonar = ALProxy("ALSonar")
+        self.sonar.subscribe("myApplication")
         self.led = ALProxy("ALLeds")
         self.video = ALProxy("ALVideoRecorder")
         self.asr = ALProxy("ALSpeechRecognition")
