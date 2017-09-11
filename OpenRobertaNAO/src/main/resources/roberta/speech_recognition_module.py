@@ -1,4 +1,5 @@
 from naoqi import *
+import time
 
 class SpeechRecognitionModule(ALModule):
 
@@ -10,7 +11,7 @@ class SpeechRecognitionModule(ALModule):
         self.lastWordRecognized = ""
         self.isWordRecognized = False
         self.asr.pause(1)
-        self.asr.setVocabulary(self.vocabulary, True)
+        self.asr.setVocabulary(self.vocabulary, False)
         self.asr.setAudioExpression(False)
         self.asr.setVisualExpression(False)
         self.asr.pause(0)
@@ -20,7 +21,7 @@ class SpeechRecognitionModule(ALModule):
     def setVocabulary(self, vocabulary):
         self.vocabulary = vocabulary
         self.asr.pause(1)
-        self.asr.setVocabulary(self.vocabulary, True)
+        self.asr.setVocabulary(self.vocabulary, False)
         self.asr.pause(0)
 
     def getVocabulary(self):
@@ -46,7 +47,7 @@ class SpeechRecognitionModule(ALModule):
         self.pauseASR()
         self.setVocabulary(vocabulary)
         self.resumeASR()
-        while(!self.isWordRecognized):
-            time.sleep(0.1)
+        while(not self.isWordRecognized):
+	    time.sleep(0.1)
         self.isWordRecognized = False
         return self.lastWordRecognized

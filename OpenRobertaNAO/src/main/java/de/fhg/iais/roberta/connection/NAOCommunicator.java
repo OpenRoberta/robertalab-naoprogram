@@ -1,18 +1,19 @@
-package de.fhg.iais.roberta.connection;
+package de.fhg.iais.roberta.components;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Scanner;
-import java.util.logging.Logger;
 
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
-import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
@@ -21,9 +22,11 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.UIKeyboardInteractive;
 import com.jcraft.jsch.UserInfo;
 
+import de.fhg.iais.roberta.util.Key;
+
 public class NAOCommunicator {
 
-    private static Logger log = Logger.getLogger("NAOCommunicator");
+    private static final Logger LOG = LoggerFactory.getLogger(NAOCommunicator.class);
     private String ip;
     private String username;
     private String password;
@@ -38,80 +41,64 @@ public class NAOCommunicator {
         this.ip = ip;
         this.username = username;
         this.password = password;
-    }
-
-    public JSONObject getDeviceInfo() {
-        JSONObject deviceInfo = new JSONObject();
-        deviceInfo.put("firmwarename", "Nao");
-        deviceInfo.put("robot", "nao");
-        deviceInfo.put("firmwareversion", "2.1");
-        deviceInfo.put("macaddr", "1");
-        deviceInfo.put("brickname", "nao");
-        deviceInfo.put("battery", "1.0");
-        return deviceInfo;
-    }
-
-    public void playAscending() throws IOException {
+        //        this.ftpClient.setConnectTimeout(20000);
 
     }
 
-    public void playDescending() throws IOException {
-
+    public String getIp() {
+        return this.ip;
     }
 
-    public void playProgramDownload() throws IOException {
-
-    }
-
-    /**
-     * @return true if a program is currently running, false otherwise
-     * @throws IOException
-     */
-    public NAOState getNAOstate() {
-        return NAOState.WAITING_FOR_PROGRAM;
-    }
-
-    public void uploadFile(byte[] binaryfile, String fileName) throws Exception {
-        log.info("Robot IP: " + this.ip + "  Username: " + this.username + "  Password: " + this.password);
+    public Key uploadFile(byte[] binaryfile, String fileName) throws Exception {
+        // LOG.info("Robot IP: " + this.ip + "  Username: " + this.username + "  Password: " + this.password);
+        Key key;
         List<String> fileNames = new ArrayList<String>();
-        fileNames.add("__init__.py");
-        fileNames.add("blockly_methods.py");
-        fileNames.add("original_hal.py");
-        fileNames.add("speech_recognition_module.py");
+        fileNames.add("roberta/__init__.py");
+        fileNames.add("roberta/blockly_methods.py");
+        fileNames.add("roberta/original_hal.py");
+        fileNames.add("roberta/speech_recognition_module.py");
         byte[] fileContents;
-        for ( String fname : fileNames ) {
-            fileContents = getFileFromResources(fname);
-            ftpTransfer(fname, fileContents);
+        try {
+            for ( String fname : fileNames ) {
+                fileContents = getFileFromResources(fname);
+                key = ftpTransfer(fname, fileContents);
+            }
+            key = ftpTransfer(fileName, binaryfile);
+            key = sshCommand("python " + fileName);
+            key = sshCommand("rm " + fileName);
+            key = sshCommand("rm -r roberta");
+        } catch ( Exception e ) {
+            key = Key.NAO_PROGRAM_UPLOAD_ERROR_CONNECTION_NOT_ESTABLISHED;
         }
-        ftpTransfer(fileName, binaryfile);
-        sshCommand("python " + fileName);
-        sshCommand("rm " + fileName);
+        return key;
     }
 
     private byte[] getFileFromResources(String fileName) {
         try {
-            ClassLoader classLoader = getClass().getClassLoader();
-            File file = new File(classLoader.getResource(fileName).getFile());
+
             String input = "";
-            Scanner scanner = new Scanner(file);
+            Scanner scanner = new Scanner(NAOCommunicator.class.getClassLoader().getResourceAsStream(fileName));
             while ( scanner.hasNextLine() ) {
                 input += scanner.nextLine() + '\n';
             }
             scanner.close();
+            //replace the line
+            //System.out.println(this.ip);
+            //            input = input.replace("self.NAO_IP = \"\"", "self.NAO_IP = \"" + this.ip + "\"");
             return input.getBytes();
 
         } catch ( Exception e ) {
+            System.out.println(e.getMessage());
             System.out.println("Problem reading or writing " + fileName + " file.");
         }
         return null;
 
     }
 
-    private void sshCommand(String command) {
+    private Key sshCommand(String command) {
 
         //implement the abstract class MyUserInfo
-        UserInfo ui = new MyUserInfo() {
-        };
+        UserInfo ui = new MyUserInfo();
 
         try {
             Session session = this.jsch.getSession(this.username, this.ip, this.sshPort);
@@ -121,7 +108,7 @@ public class NAOCommunicator {
 
             //fingerprint is not accepted
             //uncomment this part if key fingerprint is not accepted
-            java.util.Properties config = new java.util.Properties();
+            Properties config = new Properties();
             config.put("StrictHostKeyChecking", "no");
             session.setConfig(config);
 
@@ -148,13 +135,13 @@ public class NAOCommunicator {
                     if ( i < 0 ) {
                         break;
                     }
-                    System.out.print(new String(tmp, 0, i));
+                    //System.out.print(new String(tmp, 0, i));
                 }
                 if ( channel.isClosed() ) {
                     if ( in.available() > 0 ) {
                         continue;
                     }
-                    System.out.println("exit-status: " + channel.getExitStatus());
+                    // LOG.info("exit-status: " + channel.getExitStatus());
                     break;
                 }
                 try {
@@ -166,8 +153,10 @@ public class NAOCommunicator {
             //disconnect from channel and session
             channel.disconnect();
             session.disconnect();
+            return Key.NAO_PROGRAM_UPLOAD_SUCCESSFUL;
         } catch ( Exception e ) {
             System.out.println(e);
+            return Key.NAO_PROGRAM_UPLOAD_ERROR_SSH_CONNECTION;
         }
     }
 
@@ -177,33 +166,42 @@ public class NAOCommunicator {
 
         if ( replies != null && replies.length > 0 ) {
             for ( String aReply : replies ) {
-                System.out.println("SERVER: " + aReply);
+                LOG.info("NAO-SERVER: " + aReply);
             }
         }
     }
 
-    private void ftpTransfer(String fileName, byte[] binaryFile) throws Exception {
-        log.info(String.format("transferring file: %s to NAO...", fileName));
+    private Key ftpTransfer(String fileName, byte[] binaryFile) throws Exception {
+        LOG.info(String.format("transferring file: %s to NAO...", fileName));
         try {
             //connect to ftp server(NAO)
             this.ftpClient.connect(this.ip, this.ftpPort);
-            this.ftpClient.makeDirectory("roberta");
-            this.ftpClient.changeWorkingDirectory("roberta");
+            boolean success = this.ftpClient.login(this.username, this.password);
+            FTPFile[] directories = this.ftpClient.listDirectories();
+            boolean isRobertaDir = false;
+            for ( FTPFile dir : directories ) {
+                if ( dir.getName().equals("roberta") ) {
+                    isRobertaDir = true;
+                }
+            }
+            if ( !isRobertaDir ) {
+                this.ftpClient.makeDirectory("roberta");
+                //            this.ftpClient.changeWorkingDirectory("roberta");
+            }
 
             showServerReply();
             int replyCode = this.ftpClient.getReplyCode();
 
             //print error message if connection is not established
             if ( !FTPReply.isPositiveCompletion(replyCode) ) {
-                log.warning("Operation failed. Server reply code: " + replyCode);
-                return;
+                LOG.error("Operation failed. Server reply code: " + replyCode);
+                return Key.NAO_PROGRAM_UPLOAD_ERROR_CONNECTION_NOT_ESTABLISHED;
             }
-            boolean success = this.ftpClient.login(this.username, this.password);
             showServerReply();
 
             if ( !success ) {
-                log.warning("Could not login to the FTP server!");
-                return;
+                LOG.error("Could not login to the FTP server!");
+                return Key.NAO_PROGRAM_UPLOAD_ERROR_FTP_LOGIN_FAILD;
             } else {
 
                 //Use local passive mode to avoid problems with firewalls
@@ -212,22 +210,26 @@ public class NAOCommunicator {
                 //store file on the robot
                 InputStream input = new ByteArrayInputStream(binaryFile);
                 this.ftpClient.storeFile(fileName, input);
+                System.out.println(this.ftpClient.getReplyCode());
                 input.close();
             }
+
             //logout
             this.ftpClient.logout();
-            log.info("file transferred");
+            LOG.info("file transferred");
+            return Key.NAO_PROGRAM_UPLOAD_SUCCESSFUL;
         } catch ( ConnectException e ) {
-            log.warning("There is no connection!");
-            throw new Exception("No connection with the robot!");
+            LOG.error("There is no connection!");
+            return Key.NAO_PROGRAM_UPLOAD_ERROR_CONNECTION_NOT_ESTABLISHED;
         } catch ( IOException e ) {
-            log.warning("There was an error during transfer:");
+            LOG.error("There was an error during transfer:");
             e.printStackTrace();
+            return Key.NAO_PROGRAM_UPLOAD_ERROR_IO;
         }
     }
 
     //abstract MyUserInfo needed for ssh connection.
-    public abstract class MyUserInfo implements UserInfo, UIKeyboardInteractive {
+    public class MyUserInfo implements UserInfo, UIKeyboardInteractive {
         @Override
         public String getPassword() {
             return null;
