@@ -45,9 +45,11 @@ class SpeechRecognitionModule(ALModule):
 
     def recognizeWordFromDictionary(self, vocabulary):
         self.pauseASR()
+        if(isinstance(vocabulary, basestring)):
+            vocabulary = [vocabulary]
         self.setVocabulary(vocabulary)
         self.resumeASR()
         while(not self.isWordRecognized):
-	    time.sleep(0.1)
+            time.sleep(0.1)
         self.isWordRecognized = False
         return self.lastWordRecognized

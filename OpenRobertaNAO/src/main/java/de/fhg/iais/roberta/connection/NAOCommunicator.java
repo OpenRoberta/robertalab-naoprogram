@@ -1,7 +1,5 @@
 package de.fhg.iais.roberta.connection;
 
-
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,11 +22,9 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.UIKeyboardInteractive;
 import com.jcraft.jsch.UserInfo;
 
-
-
 public class NAOCommunicator {
 
-	private static Logger LOG = Logger.getLogger("NAOCommunicator");
+    private static Logger LOG = Logger.getLogger("NAOCommunicator");
     private String ip;
     private String username;
     private String password;
@@ -63,16 +59,16 @@ public class NAOCommunicator {
         try {
             for ( String fname : fileNames ) {
                 fileContents = getFileFromResources(fname);
-              ftpTransfer(fname, fileContents);
+                ftpTransfer(fname, fileContents);
             }
-           ftpTransfer(fileName, binaryfile);
+            ftpTransfer(fileName, binaryfile);
             sshCommand("python " + fileName);
-             sshCommand("rm " + fileName);
+            sshCommand("rm " + fileName);
             sshCommand("rm -r roberta");
         } catch ( Exception e ) {
-//            key = Key.NAO_PROGRAM_UPLOAD_ERROR_CONNECTION_NOT_ESTABLISHED;
+            //            key = Key.NAO_PROGRAM_UPLOAD_ERROR_CONNECTION_NOT_ESTABLISHED;
         }
-//        return key;
+        //        return key;
     }
 
     private byte[] getFileFromResources(String fileName) {
@@ -155,10 +151,10 @@ public class NAOCommunicator {
             //disconnect from channel and session
             channel.disconnect();
             session.disconnect();
-          
+
         } catch ( Exception e ) {
             System.out.println(e);
-   
+
         }
     }
 
@@ -179,17 +175,6 @@ public class NAOCommunicator {
             //connect to ftp server(NAO)
             this.ftpClient.connect(this.ip, this.ftpPort);
             boolean success = this.ftpClient.login(this.username, this.password);
-            FTPFile[] directories = this.ftpClient.listDirectories();
-            boolean isRobertaDir = false;
-            for ( FTPFile dir : directories ) {
-                if ( dir.getName().equals("roberta") ) {
-                    isRobertaDir = true;
-                }
-            }
-            if ( !isRobertaDir ) {
-                this.ftpClient.makeDirectory("roberta");
-                //            this.ftpClient.changeWorkingDirectory("roberta");
-            }
 
             showServerReply();
             int replyCode = this.ftpClient.getReplyCode();
@@ -197,17 +182,28 @@ public class NAOCommunicator {
             //print error message if connection is not established
             if ( !FTPReply.isPositiveCompletion(replyCode) ) {
                 LOG.info("Operation failed. Server reply code: " + replyCode);
-    
+
             }
             showServerReply();
 
             if ( !success ) {
                 LOG.info("Could not login to the FTP server!");
-             
+
             } else {
 
                 //Use local passive mode to avoid problems with firewalls
                 this.ftpClient.enterLocalPassiveMode();
+
+                FTPFile[] directories = this.ftpClient.listDirectories();
+                boolean isRobertaDir = false;
+                for ( FTPFile dir : directories ) {
+                    if ( dir.getName().equals("roberta") ) {
+                        isRobertaDir = true;
+                    }
+                }
+                if ( !isRobertaDir ) {
+                    this.ftpClient.makeDirectory("roberta");
+                }
 
                 //store file on the robot
                 InputStream input = new ByteArrayInputStream(binaryFile);
@@ -219,14 +215,14 @@ public class NAOCommunicator {
             //logout
             this.ftpClient.logout();
             LOG.info("file transferred");
-         
+
         } catch ( ConnectException e ) {
             LOG.info("There is no connection!");
 
         } catch ( IOException e ) {
             LOG.info("There was an error during transfer:");
             e.printStackTrace();
- 
+
         }
     }
 
@@ -272,7 +268,7 @@ public class NAOCommunicator {
         this.username = username;
         this.password = password;
     }
-    
+
     /**
      * @return true if a program is currently running, false otherwise
      * @throws IOException
@@ -280,7 +276,7 @@ public class NAOCommunicator {
     public NAOState getNAOstate() {
         return NAOState.WAITING_FOR_PROGRAM;
     }
-    
+
     public JSONObject getDeviceInfo() {
         JSONObject deviceInfo = new JSONObject();
         deviceInfo.put("firmwarename", "Nao");
