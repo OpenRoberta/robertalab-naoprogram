@@ -581,7 +581,8 @@ class Hal(object):
 
     def naoMark(self):
         self.mark.subscribe("RobertaLab", 500, 0.0)
-        return self.memory.getData("LandmarkDetected")
+        value = self.memory.getData("LandmarkDetected")
+        return value[1][1][0]
 
     def getElectricCurrent(self, jointName):
         return self.memory.getData("Device/SubDeviceList/" + jointName + "/ElectricCurrent/Sensor/Value")
