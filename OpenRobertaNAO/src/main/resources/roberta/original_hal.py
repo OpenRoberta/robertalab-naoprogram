@@ -593,7 +593,7 @@ class Hal(object):
         self.fd.forgetPerson(name)
 
     def detectFace(self):
-        self.fd.setRecoginitionEnabled(True)
+        self.fd.setRecognitionEnabled(True)
 
     def wait(self, timeMilliSeconds):
         timeSeconds = timeMilliSeconds / 1000
