@@ -55,6 +55,7 @@ public class NAOCommunicator {
         fileNames.add("roberta/blockly_methods.py");
         fileNames.add("roberta/original_hal.py");
         fileNames.add("roberta/speech_recognition_module.py");
+        fileNames.add("roberta/face_recognition_module.py");
         byte[] fileContents;
         try {
             for ( String fname : fileNames ) {

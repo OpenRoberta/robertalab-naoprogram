@@ -72,9 +72,11 @@ class Hal(object):
             
     def setAutonomousLife(self, state):
         if state == 'ON':
-            self.autonomous(1)
+            self.awareness.startAwareness()
+            self.motion.setBreathEnabled("Body", True)
         elif state == 'OFF':
-            self.autonomous(2)
+            self.awareness.stopAwareness()
+            self.motion.setBreathEnabled("Body", False)
         else:
             pass
 
@@ -418,10 +420,16 @@ class Hal(object):
         time.sleep(0.5)
         self.led.fadeRGB("FaceLeds", 0xffffff, 1)
 
-    def pointLookAt(self, x, y, z, frame, speed, mode):
-        if mode == 0:
+    def pointLookAt(self, mode, frame, x, y, z, speed):
+        if speed < 0:
+            speed = 1
+        elif speed > 100:
+            speed = 100
+        else:
+            speed /= 100.
+        if mode == "POINT":
             self.tracker.pointAt("Arms", [x, y, z], frame, speed)
-        elif mode == 1:
+        elif mode == "LOOK":
             self.tracker.lookAt([x, y, z], frame, speed, False)
 
     # SOUNDS
