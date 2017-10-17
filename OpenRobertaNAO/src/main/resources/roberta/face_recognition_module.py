@@ -13,6 +13,7 @@ class FaceRecognitionModule(ALModule):
         self.lastFaceRecognized = ""
         self.isFaceRecognized = False
         self.fd.clearDatabase()
+        self.naoFaceInformation = []
 
     def learnFace(self, name):
         return self.fd.learnFace(name)
@@ -28,6 +29,10 @@ class FaceRecognitionModule(ALModule):
         self.fd.setRecognitionEnabled(False)
         return self.lastFaceRecognized
 
+    def getNaoFaceInformation(self):
+        return self.naoFaceInformation
+
+
     def onFaceRecognized(self, key, value, message):
         if len(self.memory.getData("FaceDetected")) == 0:
             self.lastFaceRecognized = ""
@@ -35,7 +40,7 @@ class FaceRecognitionModule(ALModule):
         else:
             self.lastFaceRecognized = self.memory.getData("FaceDetected")[1][0][1][2]
             self.isFaceRecognized = True
+            # self.naoFaceInformation = mark[0][1:] 
 
     def unsubscribe(self):
         self.memory.unsubscribeToEvent("FaceDetected", self.getName())
-

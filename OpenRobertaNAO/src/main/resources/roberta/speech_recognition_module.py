@@ -53,3 +53,6 @@ class SpeechRecognitionModule(ALModule):
             time.sleep(0.1)
         self.isWordRecognized = False
         return self.lastWordRecognized
+
+    def unsubscribe(self):
+        self.memory.unsubscribeToEvent("WordRecognized", self.getName())
