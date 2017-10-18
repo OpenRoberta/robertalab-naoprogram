@@ -40,7 +40,7 @@ class Hal(object):
         self.aup = ALProxy("ALAudioPlayer")
         self.fd = ALProxy("ALFaceDetection")
         self.awareness = ALProxy("ALBasicAwareness")
-        
+
         self.naoMarkInformation = {}
 
     # MOVEMENT
@@ -611,8 +611,8 @@ class Hal(object):
         return False
 
     def naoMark(self):
-        data = self.memory.getData("LandmarkDetected") 
-        if (len(data) != 0):
+        data = self.memory.getData("LandmarkDetected")
+        if (not data is None and len(data) != 0):
             marks = data[1]
         else:
             return [-1]
@@ -620,7 +620,7 @@ class Hal(object):
         for mark in marks:
             result.append(mark[1])
             self.naoMarkInformation[mark[1][0]] = mark[0][1:] #alpha, beta, xangle, yangle, heading
-        return result
+        return list(result)
 
     def getElectricCurrent(self, jointName):
         return self.memory.getData("Device/SubDeviceList/" + jointName + "/ElectricCurrent/Sensor/Value")
@@ -637,7 +637,7 @@ class Hal(object):
     def wait(self, timeMilliSeconds):
         timeSeconds = timeMilliSeconds / 1000
         time.sleep(timeSeconds)
-        
+
     def getNaoMarkInformation(self, id):
         if (id in self.naoMarkInformation):
             return self.naoMarkInformation[id]
