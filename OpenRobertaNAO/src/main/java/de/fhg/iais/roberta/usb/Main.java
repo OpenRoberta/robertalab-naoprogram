@@ -37,7 +37,6 @@ public class Main {
     private static boolean startupFinish = false;
 
     public static void main(String[] args) {
-
         configureLogger();
 
         SwingUtilities.invokeLater(new Runnable() {

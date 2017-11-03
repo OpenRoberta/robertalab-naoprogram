@@ -1,6 +1,20 @@
 package de.fhg.iais.roberta.connection;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -14,6 +28,9 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+
 /**
  * The server communicator runs the server protocol on behalf of the actual robot hardware.
  * This class provides access to push requests, downloads the user program and download system libraries for
@@ -25,7 +42,10 @@ public class ServerCommunicator {
 
     private String serverpushAddress;
     private String serverdownloadAddress;
-    private String serverupdateAddress;
+    private String serverUpdateAddress;
+    private String serverUpdateChecksumAddress;
+
+    private static Logger logger = Logger.getLogger(ServerCommunicator.class.getName());
 
     private final CloseableHttpClient httpclient;
     private HttpPost post = null;
@@ -48,7 +68,8 @@ public class ServerCommunicator {
     public void updateCustomServerAddress(String customServerAddress) {
         this.serverpushAddress = customServerAddress + "/rest/pushcmd";
         this.serverdownloadAddress = customServerAddress + "/rest/download";
-        this.serverupdateAddress = customServerAddress + "/rest/update";
+        this.serverUpdateAddress = customServerAddress + "/update/nao/v2-1-4-3/hal";
+        this.serverUpdateChecksumAddress = customServerAddress + "/update/nao/v2-1-4-3/hal/checksum";
     }
 
     /**
@@ -100,7 +121,6 @@ public class ServerCommunicator {
         HttpEntity responseEntity = response.getEntity();
         byte[] binaryfile = null;
         if ( responseEntity != null ) {
-
             this.filename = response.getFirstHeader("Filename").getValue();
             binaryfile = EntityUtils.toByteArray(responseEntity);
         }
@@ -116,22 +136,56 @@ public class ServerCommunicator {
      * @return
      * @throws IOException if the server is unreachable or something is wrong with the binary content.
      */
-    public byte[] downloadFirmwareFile(String fwFile) throws IOException {
+    public byte[] downloadFirmwareFile() throws IOException {
+        URL url = new URL("http://" + this.serverUpdateAddress);
+        url.openConnection();
+        InputStream is = url.openStream();
+        byte[] binaryfile = new byte[is.available()];
+        is.read(binaryfile);
+        return binaryfile;
+    }
 
-        HttpGet get = new HttpGet("http://" + this.serverupdateAddress + "/" + fwFile);
+    public boolean verifyHalChecksum() throws NoSuchAlgorithmException, IOException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-1");
+        Path path = Paths.get(System.getProperty("user.dir") + "/roberta.zip");
+        try {
+            digest.update(Files.readAllBytes(path));
+        } catch ( IOException e ) {
+            return false;
+        }
+        byte[] result = digest.digest();
+        logger.log(Level.INFO, "Current hals checksum: {0} ", Base64.getEncoder().encodeToString(result));
+
+        HttpGet get = new HttpGet("http://" + this.serverUpdateChecksumAddress);
         get.setHeader("User-Agent", "Java/1.7.0_60");
         CloseableHttpResponse response = this.httpclient.execute(get);
         HttpEntity responseEntity = response.getEntity();
 
-        byte[] binaryfile = null;
-        if ( responseEntity != null ) {
-            this.filename = response.getFirstHeader("Filename").getValue();
-            binaryfile = EntityUtils.toByteArray(responseEntity);
-
+        BufferedReader rd = new BufferedReader(new InputStreamReader(responseEntity.getContent()));
+        String line;
+        if ( (line = rd.readLine()) != null ) {
+            logger.log(Level.INFO, "Received checksum from server: {0} ", line);
+            if ( Base64.getEncoder().encodeToString(result).equals(line) ) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
         }
-        response.close();
+    }
 
-        return binaryfile;
+    public void updateHal() throws IOException, ZipException {
+        byte[] data = this.downloadFirmwareFile();
+        File dataFile = new File(System.getProperty("user.dir") + "/roberta.zip");
+        dataFile.delete();
+        dataFile.createNewFile();
+        FileOutputStream fos = new FileOutputStream(dataFile);
+        fos.write(data);
+        fos.close();
+        ZipFile zipFile = new ZipFile(dataFile);
+        zipFile.extractAll(System.getProperty("user.dir"));
+        logger.info("New HAL downloaded and unzipped");
     }
 
     /**

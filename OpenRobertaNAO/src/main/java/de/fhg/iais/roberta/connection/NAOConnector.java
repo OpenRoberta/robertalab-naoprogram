@@ -1,6 +1,7 @@
 package de.fhg.iais.roberta.connection;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Observable;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
@@ -8,6 +9,7 @@ import java.util.logging.Logger;
 import org.json.JSONObject;
 
 import de.fhg.iais.roberta.util.ORAtokenGenerator;
+import net.lingala.zip4j.exception.ZipException;
 
 public class NAOConnector extends Observable implements Runnable, Connector {
 
@@ -212,7 +214,7 @@ public class NAOConnector extends Observable implements Runnable, Connector {
      * @param additionalerrormessage message for popup
      */
     private void reset(State additionalerrormessage) {
-        if ( (!this.userDisconnect) && (additionalerrormessage != null) ) {
+        if ( !this.userDisconnect && additionalerrormessage != null ) {
             notifyConnectionStateChanged(additionalerrormessage);
         }
         this.userDisconnect = false;
@@ -223,6 +225,13 @@ public class NAOConnector extends Observable implements Runnable, Connector {
     @Override
     public void userPressConnectButton() {
         this.state = State.CONNECT_BUTTON_IS_PRESSED;
+        try {
+            if ( !this.servcomm.verifyHalChecksum() ) {
+                this.servcomm.updateHal();
+            }
+        } catch ( NoSuchAlgorithmException | ZipException | IOException e ) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -276,7 +285,7 @@ public class NAOConnector extends Observable implements Runnable, Connector {
         this.servcomm.updateCustomServerAddress(this.serverAddress);
         log.info("Now using default address " + this.serverAddress);
     }
-    
+
     @Override
     public void updateRobotInformation(String ip, String username, String password) {
         this.naocomm.updateRobotInformation(ip, username, password);
