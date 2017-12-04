@@ -67,7 +67,7 @@ class BlocklyMethods:
 
     @staticmethod
     def textJoin(*args):
-        return "".join(args)
+        return ''.join(str(arg) for arg in args)
 
     @staticmethod
     def length(_list):
