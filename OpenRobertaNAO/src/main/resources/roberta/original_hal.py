@@ -432,9 +432,18 @@ class Hal(object):
 
     def say(self, text):
         #encode string with UTF-8 because the say method can't handle the unicode representation
-        newString = str(text)
-        newString = u"{}".format(newString)
-        self.tts.say(newString.decode("unicode-escape").encode("utf-8"))
+        textString = str(text)
+        textString = u"{}".format(textString)
+        textString = textString.decode("unicode-escape").encode("utf-8")
+
+        #additional String containing the parameters (usable with all engines)
+        #RSPD = speed [50 - 400%]
+        #VCT = voice shape [50 - 200%]
+        parameterString = "\\RSPD=" + str(speed) + "\\"
+        parameterString += "\\VCT=" + str(shape) + "\\"
+
+        #combine strings and add \RST\ to reset control sequences to default
+        self.tts.say(parameterString + textString + "\\RST\\")
 
     def playFile(self, filename):
         self.aup.playFile("/usr/share/naoqi/wav/" + filename + ".wav")
