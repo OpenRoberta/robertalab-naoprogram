@@ -436,11 +436,10 @@ class Hal(object):
         textString = u"{}".format(textString)
         textString = textString.decode("unicode-escape").encode("utf-8")
 
-		
-		speed = max(0, min(100, speed))
-		shape = max(0, min(100, shape))
-		speed = speed * 1.5 + 50 # range 50 - 200
-		shape = shape * 1.5 + 50 # range 50 - 200
+        speed = max(0, min(100, speed))
+        shape = max(0, min(100, shape))
+        speed = speed * 1.5 + 50 # range 50 - 200
+        shape = shape * 1.5 + 50 # range 50 - 200
         #additional String containing the parameters (usable with all engines)
         #RSPD = speed [50 - 400%]
         #VCT = voice shape [50 - 200%]
