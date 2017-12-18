@@ -438,8 +438,8 @@ class Hal(object):
 
         speed = max(0, min(100, speed))
         shape = max(0, min(100, shape))
-        speed = speed * 1.5 + 50 # range 50 - 200
-        shape = shape * 1.5 + 50 # range 50 - 200
+        speed = int(speed * 1.5 + 50) # range 50 - 200
+        shape = int(shape * 1.5 + 50) # range 50 - 200
         #additional String containing the parameters (usable with all engines)
         #RSPD = speed [50 - 400%]
         #VCT = voice shape [50 - 200%]
