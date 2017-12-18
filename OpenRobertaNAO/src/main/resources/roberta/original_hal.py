@@ -430,12 +430,17 @@ class Hal(object):
     def setLanguage(self, language):
         self.tts.setLanguage(language)
 
-    def say(self, text):
+    def say(self, text, speed = 30, shape = 30):
         #encode string with UTF-8 because the say method can't handle the unicode representation
         textString = str(text)
         textString = u"{}".format(textString)
         textString = textString.decode("unicode-escape").encode("utf-8")
 
+		
+		speed = max(0, min(100, speed))
+		shape = max(0, min(100, shape))
+		speed = speed * 1.5 + 50 # range 50 - 200
+		shape = shape * 1.5 + 50 # range 50 - 200
         #additional String containing the parameters (usable with all engines)
         #RSPD = speed [50 - 400%]
         #VCT = voice shape [50 - 200%]
