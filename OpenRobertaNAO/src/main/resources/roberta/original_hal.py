@@ -65,10 +65,18 @@ class Hal(object):
     def autonomous(self, mode):
         if mode == 1:
             self.awareness.startAwareness()
-            self.motion.setBreathEnabled("Body", False)
+            self.motion.setBreathEnabled("Body", True)
         elif mode == 2:
             self.awareness.stopAwareness()
-            self.motion.setBreathEnabled("Body", True)
+            self.motion.setBreathEnabled("Body", False)
+            
+    def setAutonomousLife(self, state):
+        if state == 'ON':
+            self.autonomous(1)
+        elif state == 'OFF':
+            self.autonomous(2)
+        else:
+            pass
 
     def hand(self, handName, mode):
         if mode == 1:
