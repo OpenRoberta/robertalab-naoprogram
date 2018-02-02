@@ -451,8 +451,8 @@ class Hal(object):
         #additional String containing the parameters (usable with all engines)
         #RSPD = speed [50 - 400%]
         #VCT = voice shape [50 - 200%]
-        parameterString = "\\RSPD=" + str(speed) + "\\"
-        parameterString += "\\VCT=" + str(shape) + "\\"
+        parameterString = "\\RSPD=" + str(math.floor(speed)) + "\\"
+        parameterString += "\\VCT=" + str(math.floor(shape)) + "\\"
 
         #combine strings and add \RST\ to reset control sequences to default
         self.tts.say(parameterString + textString + "\\RST\\")
