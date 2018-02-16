@@ -52,8 +52,7 @@ class BlocklyMethods:
     # note: we don't use the random module since it is large
     @staticmethod
     def randInt(min_val, max_val):
-        b = os.urandom(4)
-        val = b[0] << 24 | b[1] << 16 | b[2] << 8 | b[3]
+        val = int(os.urandom(4).encode('hex'), 16)
         if min_val < max_val:
             return min_val + (val % ((max_val - min_val) + 1))
         else:
