@@ -246,9 +246,9 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <source.level>1.8</source.level>
     <wix.locales>1033:en-US,1031:de-DE;en-US</wix.locales>
-    <maven.compiler.source>1.6</maven.compiler.source>
+    <maven.compiler.source>1.8</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.target>1.6</maven.compiler.target>
+    <maven.compiler.target>1.8</maven.compiler.target>
     <buildTimeStamp>${maven.build.timestamp}</buildTimeStamp>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
   </properties>

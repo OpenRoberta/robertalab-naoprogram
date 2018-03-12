@@ -3,6 +3,9 @@ package de.fhg.iais.roberta.connection;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -64,16 +67,19 @@ public class NAOCommunicator {
             LOG.info("Could not login to the FTP server!");
 
         }
-        List<String> fileNames = new ArrayList<String>();
+        List<String> fileNames = new ArrayList<>();
         fileNames.add(System.getProperty("user.dir") + "/roberta/__init__.py");
         fileNames.add(System.getProperty("user.dir") + "/roberta/blockly_methods.py");
         fileNames.add(System.getProperty("user.dir") + "/roberta/original_hal.py");
         fileNames.add(System.getProperty("user.dir") + "/roberta/speech_recognition_module.py");
+        fileNames.add(System.getProperty("user.dir") + "/roberta/face_recognition_module.py");
         byte[] fileContents;
         try {
             for ( String fname : fileNames ) {
-                fileContents = getFileFromResources(fname);
-                ftpTransfer(fname, fileContents);
+                fileContents = getFileFromFileSystem(fname);
+                String[] remoteNames = fname.split("/");
+                String remoteName = remoteNames[remoteNames.length - 1];
+                ftpTransfer("roberta/" + remoteName, fileContents);
             }
             ftpTransfer(fileName, binaryfile);
             sshCommand("python " + fileName);
@@ -105,6 +111,16 @@ public class NAOCommunicator {
         } catch ( Exception e ) {
             System.out.println(e.getMessage());
             System.out.println("Problem reading or writing " + fileName + " file.");
+        }
+        return null;
+    }
+
+    private byte[] getFileFromFileSystem(String fileName) {
+        Path filePath = Paths.get(fileName);
+        try {
+            return Files.readAllBytes(filePath);
+        } catch ( Exception e ) {
+            System.out.println(e);
         }
         return null;
     }
