@@ -618,7 +618,7 @@ class Hal(object):
             return [-1]
         result = []
         for mark in marks:
-            result.append(mark[1])
+            result.append(mark[1][0])
             self.naoMarkInformation[mark[1][0]] = mark[0][1:] #alpha, beta, xangle, yangle, heading
         return list(result)
 
