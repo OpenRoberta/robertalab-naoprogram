@@ -2,9 +2,7 @@ package de.fhg.iais.roberta.connection;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Files;
@@ -16,6 +14,7 @@ import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -66,10 +65,16 @@ public class ServerCommunicator {
      * @param customServerAddress for example localhost:1999 or 192.168.178.10:1337
      */
     public void updateCustomServerAddress(String customServerAddress) {
-        this.serverpushAddress = customServerAddress + "/rest/pushcmd";
-        this.serverdownloadAddress = customServerAddress + "/rest/download";
-        this.serverUpdateAddress = customServerAddress + "/update/nao/v2-1-4-3/hal";
-        this.serverUpdateChecksumAddress = customServerAddress + "/update/nao/v2-1-4-3/hal/checksum";
+        String prefix;
+        if ( customServerAddress.contains("443") ) {
+            prefix = "https://";
+        } else {
+            prefix = "http://";
+        }
+        this.serverpushAddress = prefix + customServerAddress + "/rest/pushcmd";
+        this.serverdownloadAddress = prefix + customServerAddress + "/rest/download";
+        this.serverUpdateAddress = prefix + customServerAddress + "/update/nao/v2-1-4-3/hal";
+        this.serverUpdateChecksumAddress = prefix + customServerAddress + "/update/nao/v2-1-4-3/hal/checksum";
     }
 
     /**
@@ -88,7 +93,7 @@ public class ServerCommunicator {
      * @throws IOException if the server is unreachable for whatever reason.
      */
     public JSONObject pushRequest(JSONObject requestContent) throws IOException, JSONException {
-        this.post = new HttpPost("http://" + this.serverpushAddress);
+        this.post = new HttpPost(this.serverpushAddress);
         this.post.setHeader("User-Agent", "Java/1.7.0_60");
         StringEntity requestEntity = new StringEntity(requestContent.toString(), ContentType.create("application/json", "UTF-8"));
         this.post.setEntity(requestEntity);
@@ -113,7 +118,7 @@ public class ServerCommunicator {
      */
     public byte[] downloadProgram(JSONObject requestContent) throws IOException {
 
-        HttpPost post = new HttpPost("http://" + this.serverdownloadAddress);
+        HttpPost post = new HttpPost(this.serverdownloadAddress);
         post.setHeader("User-Agent", "Java/1.7.0_60");
         StringEntity requestEntity = new StringEntity(requestContent.toString(), ContentType.create("application/json", "UTF-8"));
         post.setEntity(requestEntity);
@@ -129,22 +134,6 @@ public class ServerCommunicator {
         return binaryfile;
     }
 
-    /**
-     * Basically the same as downloading a user program but without any information about the EV3. It uses http GET(!).
-     *
-     * @param fwFile name of the file in the url as suffix ( .../rest/update/ev3menu)
-     * @return
-     * @throws IOException if the server is unreachable or something is wrong with the binary content.
-     */
-    public byte[] downloadFirmwareFile() throws IOException {
-        URL url = new URL("http://" + this.serverUpdateAddress);
-        url.openConnection();
-        InputStream is = url.openStream();
-        byte[] binaryfile = new byte[is.available()];
-        is.read(binaryfile);
-        return binaryfile;
-    }
-
     public boolean verifyHalChecksum() throws NoSuchAlgorithmException, IOException {
         MessageDigest digest = MessageDigest.getInstance("SHA-1");
         Path path = Paths.get(System.getProperty("user.dir") + "/roberta.zip");
@@ -156,7 +145,7 @@ public class ServerCommunicator {
         byte[] result = digest.digest();
         logger.log(Level.INFO, "Current hals checksum: {0} ", Base64.getEncoder().encodeToString(result));
 
-        HttpGet get = new HttpGet("http://" + this.serverUpdateChecksumAddress);
+        HttpGet get = new HttpGet(this.serverUpdateChecksumAddress);
         get.setHeader("User-Agent", "Java/1.7.0_60");
         CloseableHttpResponse response = this.httpclient.execute(get);
         HttpEntity responseEntity = response.getEntity();
@@ -176,13 +165,8 @@ public class ServerCommunicator {
     }
 
     public void updateHal() throws IOException, ZipException {
-        byte[] data = this.downloadFirmwareFile();
+        FileUtils.copyURLToFile(new URL(this.serverUpdateAddress), new File(System.getProperty("user.dir") + "/roberta.zip"));
         File dataFile = new File(System.getProperty("user.dir") + "/roberta.zip");
-        dataFile.delete();
-        dataFile.createNewFile();
-        FileOutputStream fos = new FileOutputStream(dataFile);
-        fos.write(data);
-        fos.close();
         ZipFile zipFile = new ZipFile(dataFile);
         zipFile.extractAll(System.getProperty("user.dir"));
         logger.info("New HAL downloaded and unzipped");
