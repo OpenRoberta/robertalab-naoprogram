@@ -38,7 +38,7 @@ public class Main {
 
     public static void main(String[] args) {
         configureLogger();
-
+        new File(System.getProperty("user.home") + "/OpenRoberta").mkdirs();
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -47,7 +47,7 @@ public class Main {
                 ResourceBundle serverProps = getServerProps();
                 naoConnector = new NAOConnector(serverProps);
                 view = new ConnectionView(messages);
-                controller = new UIController<Object>(view, messages);
+                controller = new UIController<>(view, messages);
 
                 startupFinish = true;
             }
@@ -130,7 +130,7 @@ public class Main {
             } else if ( SystemUtils.IS_OS_MAC || SystemUtils.IS_OS_MAC_OSX ) {
                 path = System.getProperty("user.home");
             }
-            logFile = new File(path, "OpenRobertaNAO");
+            logFile = new File(path, "OpenRoberta");
             if ( !logFile.exists() ) {
                 logFile.mkdir();
             }

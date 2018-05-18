@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -50,6 +51,8 @@ public class ServerCommunicator {
     private HttpPost post = null;
 
     private String filename = "";
+    private String halZipPath;
+    private String workingDirectory;
 
     /**
      * @param serverAddress either the default address taken from the properties file or the custom address entered in the gui.
@@ -75,6 +78,13 @@ public class ServerCommunicator {
         this.serverdownloadAddress = prefix + customServerAddress + "/rest/download";
         this.serverUpdateAddress = prefix + customServerAddress + "/update/nao/v2-1-4-3/hal";
         this.serverUpdateChecksumAddress = prefix + customServerAddress + "/update/nao/v2-1-4-3/hal/checksum";
+        if ( SystemUtils.IS_OS_WINDOWS ) {
+            this.halZipPath = System.getenv("APPDATA") + "/OpenRoberta/roberta.zip";
+            this.workingDirectory = System.getenv("APPDATA") + "/OpenRoberta/";
+        } else {
+            this.halZipPath = System.getProperty("user.home") + "/OpenRoberta/roberta.zip";
+            this.workingDirectory = System.getProperty("user.home") + "/OpenRoberta/";
+        }
     }
 
     /**
@@ -136,7 +146,7 @@ public class ServerCommunicator {
 
     public boolean verifyHalChecksum() throws NoSuchAlgorithmException, IOException {
         MessageDigest digest = MessageDigest.getInstance("SHA-1");
-        Path path = Paths.get(System.getProperty("user.dir") + "/roberta.zip");
+        Path path = Paths.get(this.halZipPath);
         try {
             digest.update(Files.readAllBytes(path));
         } catch ( IOException e ) {
@@ -165,10 +175,10 @@ public class ServerCommunicator {
     }
 
     public void updateHal() throws IOException, ZipException {
-        FileUtils.copyURLToFile(new URL(this.serverUpdateAddress), new File(System.getProperty("user.dir") + "/roberta.zip"));
-        File dataFile = new File(System.getProperty("user.dir") + "/roberta.zip");
+        FileUtils.copyURLToFile(new URL(this.serverUpdateAddress), new File(this.halZipPath));
+        File dataFile = new File(this.halZipPath);
         ZipFile zipFile = new ZipFile(dataFile);
-        zipFile.extractAll(System.getProperty("user.dir"));
+        zipFile.extractAll(this.workingDirectory);
         logger.info("New HAL downloaded and unzipped");
     }
 
