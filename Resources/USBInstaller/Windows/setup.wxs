@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:bal="http://schemas.microsoft.com/wix/BalExtension">
 	<?define RTMProductVersion="1.0.0" ?>
-	<?define ProductVersion=1.0.1-SNAPSHOT?>
+	<?define ProductVersion=1.0.3?>
 	<?define UpgradeCode="799563e9-08f9-4b92-9747-335577c25a45"?>
 	<?define ProductCode="379a1a40-7e3e-4a86-980e-fb06aa4ed9be"?>
 	<?define Manufacturer="Fraunhofer IAIS"?>
@@ -42,7 +42,7 @@ Property="UPGRADEFOUND" />
 
 		<Media Id='1' Cabinet='Setup.cab' EmbedCab='yes' />
 		<Property Id="InstallationFolder">OpenRobertaNAO</Property>
-		<Icon Id="OpenRobertaNAO" SourceFile="OpenRobertaNAO-1.0.1-SNAPSHOT.exe" />
+		<Icon Id="OpenRobertaNAO" SourceFile="OpenRobertaNAO-1.0.3.exe" />
 		<Property Id="ARPPRODUCTICON" Value="OpenRobertaNAO" />
 		<WixVariable Id="WixUILicenseRtf" Value="Resources_installer\Apache2.rtf" />
         <WixVariable Id="WixUIBannerBmp" Value="Resources_installer\ORBanner.bmp" />
@@ -53,7 +53,7 @@ Property="UPGRADEFOUND" />
 			<Directory Id="ProgramFilesFolder">
 				<Directory Id="INSTALLDIR" Name="OpenRobertaNAO">
 					<Component Id="ApplicationFiles" Guid="3d140aef-be7d-46f9-90c3-66fec0d27f4a">
-						<File Id="USBCONNECTION_EXE" Source="OpenRobertaNAO-1.0.1-SNAPSHOT.exe" KeyPath="yes"/>
+						<File Id="USBCONNECTION_EXE" Source="OpenRobertaNAO-1.0.3.exe" KeyPath="yes"/>
 					</Component>
 				</Directory>
 			</Directory>
@@ -65,14 +65,14 @@ Property="UPGRADEFOUND" />
 
 		<DirectoryRef Id="ApplicationProgramsFolder">
 			<Component Id="ApplicationShortcut" Guid="8f36c49b-9fb0-4e99-a3c2-94aa3249ef2e">
-				<Shortcut Id="ApplicationStartMenuShortcut" Name="Open Roberta NAO" Description="Open Roberta NAO" Target="[INSTALLDIR]OpenRobertaNAO-1.0.1-SNAPSHOT.exe" WorkingDirectory="INSTALLDIR" />
+				<Shortcut Id="ApplicationStartMenuShortcut" Name="Open Roberta NAO" Description="Open Roberta NAO" Target="[INSTALLDIR]OpenRobertaNAO-1.0.3.exe" WorkingDirectory="INSTALLDIR" />
 				<RemoveFolder Id="RemoveApplicationProgramsFolder" Directory="ApplicationProgramsFolder" On="uninstall" />
 				<RegistryValue Root="HKCU" Key="Software\OpenRobertaNAO" Name="installed" Type="integer" Value="1" KeyPath="yes" />
 			</Component>
 		</DirectoryRef>
 		<DirectoryRef Id="DesktopFolder">
 			<Component Id="ApplicationShortcutDesktop" Guid="2a3ade68-6ffb-4f72-b3ce-f5406657bae0">
-				<Shortcut Id="ApplicationDesktopShortcut" Name="Open Roberta NAO" Description="Open Roberta NAO" Target="[INSTALLDIR]OpenRobertaNAO-1.0.1-SNAPSHOT.exe" WorkingDirectory="INSTALLDIR" />
+				<Shortcut Id="ApplicationDesktopShortcut" Name="Open Roberta NAO" Description="Open Roberta NAO" Target="[INSTALLDIR]OpenRobertaNAO-1.0.3.exe" WorkingDirectory="INSTALLDIR" />
 				<RemoveFolder Id="RemoveDesktopFolder" Directory="DesktopFolder" On="uninstall" />
 				<RegistryValue Root="HKCU" Key="Software\OpenRobertaNAO" Name="installed" Type="integer" Value="1" KeyPath="yes" />
 			</Component>
