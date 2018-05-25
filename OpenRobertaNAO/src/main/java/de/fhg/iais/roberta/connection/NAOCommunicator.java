@@ -12,6 +12,7 @@ import java.util.Properties;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
@@ -36,12 +37,21 @@ public class NAOCommunicator {
 
     private final JSch jsch = new JSch();
     private final FTPClient ftpClient = new FTPClient();
+    private String halZipPath;
+    private String workingDirectory;
 
     public NAOCommunicator(String ip, String username, String password) {
         this.ip = ip;
         this.username = username;
         this.password = password;
         //        this.ftpClient.setConnectTimeout(20000);
+        if ( SystemUtils.IS_OS_WINDOWS ) {
+            this.halZipPath = System.getenv("APPDATA") + "/OpenRoberta/roberta.zip";
+            this.workingDirectory = System.getenv("APPDATA") + "/OpenRoberta/";
+        } else {
+            this.halZipPath = System.getProperty("user.home") + "/OpenRoberta/roberta.zip";
+            this.workingDirectory = System.getProperty("user.home") + "/OpenRoberta/";
+        }
 
     }
 
@@ -68,11 +78,11 @@ public class NAOCommunicator {
 
         }
         List<String> fileNames = new ArrayList<>();
-        fileNames.add(System.getProperty("user.dir") + "/roberta/__init__.py");
-        fileNames.add(System.getProperty("user.dir") + "/roberta/blockly_methods.py");
-        fileNames.add(System.getProperty("user.dir") + "/roberta/original_hal.py");
-        fileNames.add(System.getProperty("user.dir") + "/roberta/speech_recognition_module.py");
-        fileNames.add(System.getProperty("user.dir") + "/roberta/face_recognition_module.py");
+        fileNames.add(this.workingDirectory + "/roberta/__init__.py");
+        fileNames.add(this.workingDirectory + "/roberta/blockly_methods.py");
+        fileNames.add(this.workingDirectory + "/roberta/original_hal.py");
+        fileNames.add(this.workingDirectory + "/roberta/speech_recognition_module.py");
+        fileNames.add(this.workingDirectory + "/roberta/face_recognition_module.py");
         byte[] fileContents;
         try {
             for ( String fname : fileNames ) {
