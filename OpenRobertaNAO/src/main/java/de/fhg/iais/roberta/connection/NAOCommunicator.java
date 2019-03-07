@@ -275,7 +275,7 @@ public class NAOCommunicator {
         deviceInfo.put("firmwarename", "Nao");
         deviceInfo.put("robot", "nao");
         deviceInfo.put("firmwareversion", "2.1");
-        deviceInfo.put("macaddr", "1");
+        deviceInfo.put("macaddr", "usb");
         deviceInfo.put("brickname", "nao");
         deviceInfo.put("battery", "1.0");
         return deviceInfo;
