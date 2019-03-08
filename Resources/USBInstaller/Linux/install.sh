@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version="1.0.4"
+version="1.0.5"
 dir="$( pwd )"
 
 echo "[Desktop Entry]" > "/usr/share/applications/ORUSBNao.desktop"
