@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 
 import org.json.JSONObject;
 
+import com.jcraft.jsch.JSchException;
+
 import de.fhg.iais.roberta.util.ORAtokenGenerator;
 import net.lingala.zip4j.exception.ZipException;
 
@@ -17,9 +19,9 @@ public class NAOConnector extends Observable implements Runnable, Connector {
     private String serverPort = "1999";
     private final String serverAddress;
 
-    private String robotIp;
-    private String robotUserName;
-    private String robotPassword;
+    private String robotIp = "";
+    private String robotUserName = "";
+    private String robotPassword = "";
 
     private static Logger log = Logger.getLogger("Connector");
 
@@ -58,17 +60,11 @@ public class NAOConnector extends Observable implements Runnable, Connector {
                     DiscoverNAO discoverNAO = new DiscoverNAO();
                     if ( discoverNAO.discover() ) {
                         this.naocomm = discoverNAO.createCommunicator(this.robotIp, this.robotUserName, this.robotPassword);
-                        JSONObject deviceInfo = this.naocomm.getDeviceInfo();
-                        if ( !this.token.equals("") && !this.macAddr.equals("") && !this.brickName.equals("") ) {
-                            if ( this.macAddr.equals(deviceInfo.optString("macaddr", "")) && this.brickName.equals(deviceInfo.optString("brickname", "")) ) {
-
-                                this.state = State.WAIT_FOR_CMD;
-                                notifyConnectionStateChanged(State.RECONNECT);
-                            }
-                        } else {
+                        if ( this.token.equals("") ) {
                             this.state = State.WAIT_FOR_CONNECT_BUTTON_PRESS;
                             notifyConnectionStateChanged(this.state);
                         }
+
                     } else {
                         log.info("No NAO device connected");
                         sleepUntilNextStep(1000);
@@ -88,7 +84,9 @@ public class NAOConnector extends Observable implements Runnable, Connector {
                     this.token = ORAtokenGenerator.generateToken();
                     this.state = State.WAIT_FOR_SERVER;
                     notifyConnectionStateChanged(this.state);
+
                     JSONObject deviceInfo = this.naocomm.getDeviceInfo();
+
                     if ( deviceInfo == null ) {
                         reset(State.ERROR_BRICK);
                         break;
@@ -226,8 +224,9 @@ public class NAOConnector extends Observable implements Runnable, Connector {
     public void userPressConnectButton() {
         this.state = State.CONNECT_BUTTON_IS_PRESSED;
         try {
-            if ( !this.servcomm.verifyHalChecksum() ) {
-                this.servcomm.updateHal();
+            String firmware = this.naocomm.checkFirmwareVersion();
+            if ( !this.servcomm.verifyHalChecksum(firmware) ) {
+                this.servcomm.updateHal(firmware);
             }
         } catch ( NoSuchAlgorithmException | ZipException | IOException e ) {
             e.printStackTrace();
@@ -288,13 +287,21 @@ public class NAOConnector extends Observable implements Runnable, Connector {
 
     @Override
     public void updateRobotInformation(String ip, String username, String password) {
-        this.naocomm.updateRobotInformation(ip, username, password);
+        try {
+            this.naocomm.updateRobotInformation(ip, username, password);
+        } catch ( JSchException | IOException | InterruptedException e ) {
+            e.printStackTrace();
+        }
         log.info("Now using robot information IP: " + ip + "  Username: " + username + "  Password: " + password);
     }
 
     @Override
     public void resetToDefaultRobotInformation() {
-        this.naocomm.updateRobotInformation("0.0.0.0", "nao", "nao");
+        try {
+            this.naocomm.updateRobotInformation("0.0.0.0", "nao", "nao");
+        } catch ( JSchException | IOException | InterruptedException e ) {
+            e.printStackTrace();
+        }
         log.info("Now using default robot information IP: 0.0.0.0   Username: nao   Password: nao");
     }
 

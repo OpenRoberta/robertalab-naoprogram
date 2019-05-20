@@ -45,7 +45,7 @@ public class ServerCommunicator {
     private String serverUpdateAddress;
     private String serverUpdateChecksumAddress;
 
-    private static Logger logger = Logger.getLogger(ServerCommunicator.class.getName());
+    private static Logger log = Logger.getLogger("Connector");
 
     private final CloseableHttpClient httpclient;
     private HttpPost post = null;
@@ -76,8 +76,8 @@ public class ServerCommunicator {
         }
         this.serverpushAddress = prefix + customServerAddress + "/rest/pushcmd";
         this.serverdownloadAddress = prefix + customServerAddress + "/rest/download";
-        this.serverUpdateAddress = prefix + customServerAddress + "/update/nao/v2-1-4-3/hal";
-        this.serverUpdateChecksumAddress = prefix + customServerAddress + "/update/nao/v2-1-4-3/hal/checksum";
+        this.serverUpdateAddress = prefix + customServerAddress + "/update/nao/%s/hal";
+        this.serverUpdateChecksumAddress = prefix + customServerAddress + "/update/nao/%s/hal/checksum";
         if ( SystemUtils.IS_OS_WINDOWS ) {
             this.halZipPath = System.getenv("APPDATA") + "/OpenRoberta/roberta.zip";
             this.workingDirectory = System.getenv("APPDATA") + "/OpenRoberta/";
@@ -144,7 +144,7 @@ public class ServerCommunicator {
         return binaryfile;
     }
 
-    public boolean verifyHalChecksum() throws NoSuchAlgorithmException, IOException {
+    public boolean verifyHalChecksum(String firmware) throws NoSuchAlgorithmException, IOException {
         MessageDigest digest = MessageDigest.getInstance("SHA-1");
         Path path = Paths.get(this.halZipPath);
         try {
@@ -153,9 +153,9 @@ public class ServerCommunicator {
             return false;
         }
         byte[] result = digest.digest();
-        logger.log(Level.INFO, "Current hals checksum: {0} ", Base64.getEncoder().encodeToString(result));
+        log.log(Level.INFO, "Current hals checksum: {0} ", Base64.getEncoder().encodeToString(result));
 
-        HttpGet get = new HttpGet(this.serverUpdateChecksumAddress);
+        HttpGet get = new HttpGet(String.format(this.serverUpdateChecksumAddress, firmware));
         get.setHeader("User-Agent", "Java/1.7.0_60");
         CloseableHttpResponse response = this.httpclient.execute(get);
         HttpEntity responseEntity = response.getEntity();
@@ -163,7 +163,7 @@ public class ServerCommunicator {
         BufferedReader rd = new BufferedReader(new InputStreamReader(responseEntity.getContent()));
         String line;
         if ( (line = rd.readLine()) != null ) {
-            logger.log(Level.INFO, "Received checksum from server: {0} ", line);
+            log.log(Level.INFO, "Received checksum from server: {0} ", line);
             if ( Base64.getEncoder().encodeToString(result).equals(line) ) {
                 return true;
             } else {
@@ -174,12 +174,12 @@ public class ServerCommunicator {
         }
     }
 
-    public void updateHal() throws IOException, ZipException {
-        FileUtils.copyURLToFile(new URL(this.serverUpdateAddress), new File(this.halZipPath));
+    public void updateHal(String firmware) throws IOException, ZipException {
+        FileUtils.copyURLToFile(new URL(String.format(this.serverUpdateAddress, firmware)), new File(this.halZipPath));
         File dataFile = new File(this.halZipPath);
         ZipFile zipFile = new ZipFile(dataFile);
         zipFile.extractAll(this.workingDirectory);
-        logger.info("New HAL downloaded and unzipped");
+        log.info("New HAL downloaded and unzipped");
     }
 
     /**
