@@ -203,6 +203,9 @@ public class UIController<ObservableObject> implements Observer {
             case ERROR_BRICK:
                 ORAPopup.showPopup(this.conView, this.rb.getString("attention"), this.rb.getString("httpBrickInfo"), null);
                 break;
+            case ERROR_NOT_FOUND:
+                ORAPopup.showPopup(this.conView, this.rb.getString("attention"), this.rb.getString("notfound"), null);
+                break;
             case TOKEN_TIMEOUT:
                 ORAPopup.showPopup(this.conView, this.rb.getString("attention"), this.rb.getString("tokenTimeout"), null);
             default:

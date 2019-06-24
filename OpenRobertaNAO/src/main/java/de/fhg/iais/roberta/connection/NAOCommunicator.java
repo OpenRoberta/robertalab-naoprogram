@@ -56,6 +56,8 @@ public class NAOCommunicator {
             this.ssh = new SshConnection(this.ip, this.sshPort, this.userName, this.password);
             this.ssh.createSession();
             this.ssh.connect();
+            this.ssh.command("rm -rf /home/" + this.userName + "/roberta");
+            this.ssh.command("mkdir -p /home/" + this.userName + "/roberta");
             for ( String fname : fileNames ) {
                 this.ssh.copyLocalToRemote(this.workingDirectory + "/roberta", "roberta", fname);
             }

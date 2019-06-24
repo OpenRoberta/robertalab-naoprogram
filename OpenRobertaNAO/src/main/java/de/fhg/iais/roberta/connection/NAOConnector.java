@@ -6,6 +6,7 @@ import java.util.Observable;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
+import de.fhg.iais.roberta.ui.ORAPopup;
 import org.json.JSONObject;
 
 import com.jcraft.jsch.JSchException;
@@ -81,44 +82,64 @@ public class NAOConnector extends Observable implements Runnable, Connector {
                     sleepUntilNextStep(1000);
                     break;
                 case CONNECT_BUTTON_IS_PRESSED:
-                    this.token = ORAtokenGenerator.generateToken();
-                    this.state = State.WAIT_FOR_SERVER;
-                    notifyConnectionStateChanged(this.state);
-
-                    JSONObject deviceInfo = this.naocomm.getDeviceInfo();
-
-                    if ( deviceInfo == null ) {
-                        reset(State.ERROR_BRICK);
-                        break;
-                    }
-                    deviceInfo.put(KEY_TOKEN, this.token);
-                    deviceInfo.put(KEY_CMD, CMD_REGISTER);
+                    boolean robotAvailable = false;
                     try {
-                        //Blocks until the server returns command in its response
-                        JSONObject serverResponse = this.servcomm.pushRequest(deviceInfo);
-                        String command = serverResponse.getString("cmd");
-                        if ( command.equals(CMD_REPEAT) ) {
-
-                            log.info("registration successful");
-                            this.brickName = deviceInfo.getString("brickname");
-                            this.macAddr = deviceInfo.getString("macaddr");
-                            this.state = State.WAIT_FOR_CMD;
-                            notifyConnectionStateChanged(this.state);
-                        } else if ( command.equals(CMD_ABORT) ) {
-                            log.info("registration timeout");
-                            notifyConnectionStateChanged(State.TOKEN_TIMEOUT);
-                            this.state = State.DISCOVER;
-                            notifyConnectionStateChanged(this.state);
-                        } else {
-                            throw new RuntimeException("Unexpected command " + command + "from server");
+                        String firmware = this.naocomm.checkFirmwareVersion();
+                        if (!firmware.isEmpty()) {
+                            robotAvailable = true;
+                            if (!this.servcomm.verifyHalChecksum(firmware)) {
+                                this.servcomm.updateHal(firmware);
+                            }
                         }
-                    } catch ( IOException e ) {
-                        log.info("SERVER COMMUNICATION ERROR " + e.getMessage());
-                        reset(State.ERROR_HTTP);
-                        resetLastConnectionData();
-                    } catch ( RuntimeException e ) {
-                        log.info("SERVER COMMUNICATION ERROR " + e.getMessage());
-                        reset(State.ERROR_HTTP);
+                    } catch ( NoSuchAlgorithmException | ZipException | IOException e ) {
+                        e.printStackTrace();
+                    }
+
+                    if (robotAvailable) {
+                        this.token = ORAtokenGenerator.generateToken();
+                        this.state = State.WAIT_FOR_SERVER;
+                        notifyConnectionStateChanged(this.state);
+
+                        JSONObject deviceInfo = this.naocomm.getDeviceInfo();
+
+                        if (deviceInfo == null) {
+                            reset(State.ERROR_BRICK);
+                            break;
+                        }
+                        deviceInfo.put(KEY_TOKEN, this.token);
+                        deviceInfo.put(KEY_CMD, CMD_REGISTER);
+                        try {
+                            //Blocks until the server returns command in its response
+                            JSONObject serverResponse = this.servcomm.pushRequest(deviceInfo);
+                            String command = serverResponse.getString("cmd");
+                            if (command.equals(CMD_REPEAT)) {
+
+                                log.info("registration successful");
+                                this.brickName = deviceInfo.getString("brickname");
+                                this.macAddr = deviceInfo.getString("macaddr");
+                                this.state = State.WAIT_FOR_CMD;
+                                notifyConnectionStateChanged(this.state);
+                            } else if (command.equals(CMD_ABORT)) {
+                                log.info("registration timeout");
+                                notifyConnectionStateChanged(State.TOKEN_TIMEOUT);
+                                this.state = State.DISCOVER;
+                                notifyConnectionStateChanged(this.state);
+                            } else {
+                                throw new RuntimeException("Unexpected command " +
+                                                           command +
+                                                           "from server");
+                            }
+                        } catch (IOException e) {
+                            log.info("SERVER COMMUNICATION ERROR " + e.getMessage());
+                            reset(State.ERROR_HTTP);
+                            resetLastConnectionData();
+                        } catch (RuntimeException e) {
+                            log.info("SERVER COMMUNICATION ERROR " + e.getMessage());
+                            reset(State.ERROR_HTTP);
+                            resetLastConnectionData();
+                        }
+                    } else {
+                        reset(State.ERROR_NOT_FOUND);
                         resetLastConnectionData();
                     }
                     break;
@@ -223,14 +244,6 @@ public class NAOConnector extends Observable implements Runnable, Connector {
     @Override
     public void userPressConnectButton() {
         this.state = State.CONNECT_BUTTON_IS_PRESSED;
-        try {
-            String firmware = this.naocomm.checkFirmwareVersion();
-            if ( !this.servcomm.verifyHalChecksum(firmware) ) {
-                this.servcomm.updateHal(firmware);
-            }
-        } catch ( NoSuchAlgorithmException | ZipException | IOException e ) {
-            e.printStackTrace();
-        }
     }
 
     @Override

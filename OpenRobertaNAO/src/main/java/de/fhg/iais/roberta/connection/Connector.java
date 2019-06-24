@@ -24,6 +24,7 @@ public interface Connector {
         ERROR_UPDATE,
         ERROR_BRICK,
         ERROR_DOWNLOAD,
+        ERROR_NOT_FOUND,
         TOKEN_TIMEOUT
     }
 

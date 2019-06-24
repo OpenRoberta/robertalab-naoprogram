@@ -36,9 +36,9 @@ import de.fhg.iais.roberta.util.Utils;
 public class ConnectionView extends JFrame {
 
     private static final long serialVersionUID = 1L;
-    private static final int WIDTH = 300;
+    private static final int WIDTH = 322;
     private static final int HEIGHT = 500;
-    private static final int ADVANCED_HEIGHT = 560;
+    private static final int ADVANCED_HEIGHT = 568;
 
     private final JMenuBar menu = new JMenuBar();
     private final JMenu mnFile = new JMenu();
