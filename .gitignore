@@ -5,3 +5,5 @@
 */target
 *.wixpdb
 *.wixobj
+*.iml
+.idea/

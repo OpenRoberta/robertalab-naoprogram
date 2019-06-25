@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.fhg.iais.openroberta</groupId>
   <artifactId>OpenRobertaNAO</artifactId>
-  <version>1.0.6</version>
+  <version>1.0.7</version>
   <build>
     <sourceDirectory>${project.basedir}/OpenRobertaNAO/src/main/java</sourceDirectory>
     <scriptSourceDirectory>OpenRobertaNAO/src/main/scripts</scriptSourceDirectory>
@@ -161,7 +161,7 @@
       <plugin>
         <groupId>com.akathist.maven.plugins.launch4j</groupId>
         <artifactId>launch4j-maven-plugin</artifactId>
-        <version>1.7.12</version>
+        <version>1.7.25</version>
         <executions>
           <execution>
             <id>l4j-clui</id>
